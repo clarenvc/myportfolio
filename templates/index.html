@@ -1,61 +1,123 @@
-<!DOCTYPE html> 
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Karen Lim - Portfolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
     <header class="site-header">
-        <div class="container">
-            <a href="#profile" class="brand">Karen Lim</a>
-            <nav>
-                <a href="#profile">Profile</a>
-            </nav>
-        </div>
+      <div class="container">
+        <a href="#profile" class="brand">Karen Lim</a>
+        <nav>
+          <a href="#profile">Profile</a>
+        </nav>
+      </div>
     </header>
 
     <main>
-        <section class="hero" id="profile">
-            <div class="container hero-grid">
-                <div class="hero-identity">
-                    <p class="hero-kicker">Information Systems &middot; Universitas Indonesia</p>
-                    <h1>Karen Lim</h1>
+      <section class="hero" id="profile">
+        <div class="container hero-grid">
+          <div class="hero-identity">
+            <p class="hero-kicker">
+              Information Systems &middot; Universitas Indonesia
+            </p>
+            <h1>Karen Lim</h1>
+          </div>
+          <div class="hero-photo">
+            <div class="photo-block"></div>
+            <img
+              class="avatar"
+              src="/static/img/foto-karen.jpg"
+              alt="Photo of Karen"
+            />
+          </div>
+          <div class="hero-details">
+            <p class="bio">
+              2nd Year student of Universitas Indonesia's Information System
+              program. Currently pursuing my degree with interests in game
+              development and web development.
+            </p>
+            <dl class="meta-list">
+              <div class="meta-row">
+                <dt>NPM</dt>
+                <dd>2506623982</dd>
+              </div>
+              <div class="meta-row">
+                <dt>Program</dt>
+                <dd>S1 Information Systems</dd>
+              </div>
+            </dl>
+
+            <section class="my-education">
+              <h2>Education History</h2>
+              <div class="education-container">
+                <!-- Box 1: SD-SMP -->
+                <div class="edu-card">
+                  <span class="edu-year">2013 — 2022</span>
+                  <h3 class="edu-school">JAC School</h3>
+                  <p class="edu-desc">
+                    A prominent national plus school emphasizing early character
+                    building and intensive English proficiency to prepare
+                    students for a globalized world.
+                  </p>
                 </div>
-                <div class="hero-photo">
-                    <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/foto-karen.jpg" alt="Photo of Karen">
+
+                <!-- Box 2: SMA -->
+                <div class="edu-card">
+                  <span class="edu-year">2022 — 2025</span>
+                  <h3 class="edu-school">SMA PL Van Lith Muntilan</h3>
+                  <p class="edu-desc">
+                    A renowned Catholic boarding school focusing on academic
+                    excellence, rigorous discipline, and fostering independent
+                    living skills.
+                  </p>
                 </div>
-                <div class="hero-details">
-                    <p class="bio">2nd Year student of Universitas Indonesia's Information System program. Currently pursuing my degree with interests in game development and web development.</p>
-                    <dl class="meta-list">
-                        <div class="meta-row">
-                            <dt>NPM</dt>
-                            <dd>2506623982</dd>
-                        </div>
-                        <div class="meta-row">
-                            <dt>Program</dt>
-                            <dd>S1 Information Systems</dd>
-                        </div>
-                    </dl>
-                    <div class="social-links">
-                        <a href="https://github.com/clarenvc/myportfolio/blob/main/README.md/" class="social-link">GitHub</a>
-                        <a href="https://www.linkedin.com/in/karen-lim-632758371/" class="social-link">LinkedIn</a>
-                        <a href="mailto:clarenvc@gmail.com" class="social-link">Email</a>
-                    </div>
+
+                <!-- Box 3: Kuliah -->
+                <div class="edu-card">
+                  <span class="edu-year">2025 — Present</span>
+                  <h3 class="edu-school">Universitas Indonesia</h3>
+                  <p class="edu-desc">
+                    Indonesia's top-ranked university. Currently pursuing a
+                    degree in Computer Science, focusing on software
+                    engineering, AI, and information systems.
+                  </p>
                 </div>
+              </div>
+            </section>
+            <div class="social-links">
+              <a
+                href="https://github.com/clarenvc/myportfolio/blob/main/README.md/"
+                class="social-link"
+                >GitHub</a
+              >
+              <a
+                href="https://www.linkedin.com/in/karen-lim-632758371/"
+                class="social-link"
+                >LinkedIn</a
+              >
+              <a href="mailto:clarenvc@gmail.com" class="social-link">Email</a>
             </div>
-        </section>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 Karen Lim. Faculty of Computer Science, Universitas Indonesia.</p>
-        </div>
+      <div class="container">
+        <p>
+          &copy; 2026 Karen Lim. Faculty of Computer Science, Universitas
+          Indonesia.
+        </p>
+      </div>
     </footer>
-</body>
+  </body>
 </html>
