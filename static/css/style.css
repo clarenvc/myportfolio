@@ -252,4 +252,8 @@ h1,
   .social-links {
     justify-content: flex-start;
   }
+
+  .education-container {
+    grid-template-columns: 1fr;
+  }
 }
