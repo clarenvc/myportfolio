@@ -16,6 +16,9 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+#Baris tambahan buat akses Django Adminnya PWS
+CSRF_TRUSTED_ORIGINS = ['https://karen-lim-myportfolio.pws.cs.ui.ac.id']
+
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "karen-lim-myportfolio.pws.cs.ui.ac.id"]
 
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
