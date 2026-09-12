@@ -10,15 +10,32 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
     <header class="site-header">
-      <div class="container">
-        <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
+      <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+        
+        <!-- Bagian Kiri: Logo Sosial Media & Nama Brand -->
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div class="top-social-logos" style="display: flex; gap: 0.75rem;">
+            <a href="https://github.com/clarenvc/myportfolio/blob/main/README.md/" target="_blank" title="GitHub" style="color: #fff; font-size: 1.1rem;">
+              <i class="fa-brands fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/karen-lim-632758371/" target="_blank" title="LinkedIn" style="color: #fff; font-size: 1.1rem;">
+              <i class="fa-brands fa-linkedin"></i>
+            </a>
+            <a href="mailto:clarenvc@gmail.com" title="Email" style="color: #fff; font-size: 1.1rem;">
+              <i class="fa-solid fa-envelope"></i>
+            </a>
+          </div>
+          <a href="{% url 'main:show_main' %}" class="brand">{{ nickname }}'s Portfolio</a>
+        </div>
         <nav>
           <a href="{% url 'main:show_main' %}">Profile</a>
           <a href="{% url 'main:show_experience' %}">Experience</a>
+          <a href="{% url 'main:show_skills' %}">Skills</a>
         </nav>
       </div>
     </header>
@@ -28,7 +45,7 @@
         <div class="container hero-grid">
           <div class="hero-identity">
             <p class="hero-kicker">
-              Information Systems &middot; Universitas Indonesia
+              Information Systems &middot; University of Indonesia
             </p>
             <h1>{{ name }}</h1>
           </div>
@@ -95,29 +112,12 @@
           </div>
         </div>
       </section>
-      <section class="my-socials">
-        <div class="container">
-          <div class="social-links">
-            <a
-              href="https://github.com/clarenvc/myportfolio/blob/main/README.md/"
-              class="social-link"
-              >GitHub</a
-            >
-            <a
-              href="https://www.linkedin.com/in/karen-lim-632758371/"
-              class="social-link"
-              >LinkedIn</a
-            >
-            <a href="mailto:clarenvc@gmail.com" class="social-link">Email</a>
-          </div>
-        </div>
-      </section>
     </main>
 
     <footer class="site-footer">
       <div class="container">
         <p>
-          &copy; 2026 {{ name }}. Faculty of Computer Science, Universitas
+          &copy; 2026 {{ name }}. Faculty of Computer Science, University of
           Indonesia.
         </p>
       </div>
