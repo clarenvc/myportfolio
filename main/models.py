@@ -27,12 +27,11 @@ class Experience(models.Model):
 
 class Skill(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tool_name = models.CharField(max_length=100) # Contoh: VS Code
-    category_title = models.CharField(max_length=100) # Contoh: Programming
-    description = models.TextField() # Contoh: Short description of how I use VS Code...
-    tool_logo_url = models.URLField(blank=True, null=True) # Untuk logo software di kiri (misal logo VS Code)
+    tool_name = models.CharField(max_length=100)
+    category_title = models.CharField(max_length=100) 
+    description = models.TextField() 
+    tool_logo_url = models.URLField(blank=True, null=True) # Untuk logo software di kiri 
     
-    # Kamu bisa menyimpan daftar bahasa pemrograman/ikon terkait (misal menggunakan Font Awesome classes atau teks)
     sub_skills = models.TextField(blank=True, null=True) # Contoh: Java, Python (bisa dirender dengan ikon)
 
     def __str__(self):

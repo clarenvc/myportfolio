@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skills - {{ name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <!-- Navbar Konsisten -->
+    <header class="site-header">
+      <div
+        class="container"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div style="display: flex; align-items: center; gap: 1.25rem">
+          <div class="top-social-logos" style="display: flex; gap: 0.75rem">
+            <a
+              href="https://github.com/clarenvc/myportfolio/blob/main/README.md/"
+              target="_blank"
+              title="GitHub"
+              style="color: #fff; font-size: 1.1rem"
+            >
+              <i class="fa-brands fa-github"></i>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/karen-lim-632758371/"
+              target="_blank"
+              title="LinkedIn"
+              style="color: #fff; font-size: 1.1rem"
+            >
+              <i class="fa-brands fa-linkedin"></i>
+            </a>
+            <a
+              href="mailto:clarenvc@gmail.com"
+              title="Email"
+              style="color: #fff; font-size: 1.1rem"
+            >
+              <i class="fa-solid fa-envelope"></i>
+            </a>
+          </div>
+          <a href="{% url 'main:show_main' %}" class="brand"
+            >{{ nickname }}'s Portfolio</a
+          >
+        </div>
+        <nav>
+          <a href="{% url 'main:show_main' %}">Profile</a>
+          <a href="{% url 'main:show_experience' %}">Experience</a>
+          <a href="{% url 'main:show_skills' %}">Skills</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Konten Utama Halaman Skills -->
+    <main>
+      <section class="experience-section" id="skills">
+        <div class="container">
+          <p class="section-kicker">What I do and What I Use</p>
+          <h1 style="margin-bottom: 2rem">Skills</h1>
+
+          <div
+            class="experience-grid"
+            style="display: flex; flex-direction: column; gap: 1rem"
+          >
+            {% for skill in skills %}
+            <article
+              class="experience-card"
+              style="display: flex; align-items: center; gap: 2rem"
+            >
+              <!-- Bagian Kiri: Kotak Logo dengan Gradien -->
+              <div
+                style="
+                  flex-shrink: 0;
+                  width: 120px;
+                  display: flex;
+                  justify-content: center;
+                "
+              >
+                <img
+                  src="{% if skill.tool_logo_url %}{{ skill.tool_logo_url }}{% else %}https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg{% endif %}"
+                  alt="{{ skill.tool_name }} Logo"
+                  style="
+                    width: 100%;
+                    height: auto;
+                    filter: brightness(0.8);
+                    -webkit-mask-image: linear-gradient(
+                      to right,
+                      rgba(0, 0, 0, 0.8) 0%,
+                      rgba(0, 0, 0, 0.2) 100%
+                    );
+                    mask-image: linear-gradient(
+                      to right,
+                      rgba(0, 0, 0, 0.8) 0%,
+                      rgba(0, 0, 0, 0.2) 100%
+                    );
+                  "
+                />
+              </div>
+
+              <!-- Bagian Kanan: Konten Teks -->
+              <div style="flex-grow: 1">
+                <!-- PERUBAHAN: Memakai class 'experience-category' agar gaya teks kategori sama persis dengan Experience -->
+                <span
+                  class="experience-category"
+                  style="display: block; margin-bottom: 0.25rem"
+                >
+                  {{ skill.category_title }}
+                </span>
+                <h2
+                  style="
+                    margin: 0 0 0.5rem 0;
+                    font-size: 1.25rem;
+                    font-weight: bold;
+                    color: var(--ink);
+                  "
+                >
+                  {{ skill.tool_name }}
+                </h2>
+                <!-- PERUBAHAN: Memakai class 'experience-description' agar warna teks deskripsi seragam -->
+                <p class="experience-description" style="margin-bottom: 1rem">
+                  {{ skill.description }}
+                </p>
+                <!-- Sub-skills / Bahasa Pemrograman Pendukung -->
+                {% if skill.sub_skills %}
+                <p
+                  class="experience-status"
+                  style="
+                    margin-top: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                  "
+                >
+                  <span style="font-weight: normal; color: var(--text-muted)"
+                    >Languages:</span
+                  >
+                  <span
+                    style="
+                      background: var(--paper);
+                      padding: 0.2rem 0.5rem;
+                      border-radius: var(--radius);
+                      border: 1px solid var(--line);
+                    "
+                  >
+                    {{ skill.sub_skills }}
+                  </span>
+                </p>
+                {% endif %}
+              </div>
+            </article>
+            {% empty %}
+            <p class="empty-state">No skills have been added yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          &copy; 2026 {{ name }}. Faculty of Computer Science, University of
+          Indonesia.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
