@@ -16,6 +16,11 @@
           class="experience-card"
           style="display: flex; align-items: center; gap: 2rem"
         >
+          <!-- Tombol apus skill -->
+          <div class="skill-card-actions">
+            {% include "components/skill_delete_modal.html" with skill=skill %}
+          </div>
+
           <!-- Bagian Kiri: Kotak Logo dengan Gradien -->
           <div
             style="

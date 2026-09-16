@@ -1,5 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponse
+from django.core import serializers
 
 from main.models import Experience
 from main.models import Skill
@@ -52,3 +54,31 @@ def create_skill(request):
         "form": form,
     }
     return render(request, "skills_form.html", context)
+
+def get_skills_json(request):
+    json_response = get_skills_json(request)
+
+    deserialized_skills = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+ 
+    skills_list = [skill.object for skill in deserialized_skills]
+    tool_query = request.GET.get("tool", "").strip()
+
+    if tool_query:
+        skills = skills.filter(tool_name__icontains=tool_query)
+
+    skills_json = serializers.serialize("json", skills)
+    return HttpResponse(skills_json, content_type="application/json")
+
+def delete_skill(request, skill_id):
+    # Mencari skill berdasarkan primary key (UUID) atau mengembalikan 404 jika tidak ketemu
+    skill = get_object_or_404(Skill, pk=skill_id)
+  
+    if request.method == "POST":
+        skill.delete()
+        messages.success(request, "Skill berhasil dihapus!")
+        return redirect("main:show_skills")
+        
+    return redirect("main:show_skills")

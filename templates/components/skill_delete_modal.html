@@ -1,0 +1,43 @@
+<p class="experience-status">
+    <button type="button"
+            class="button button-danger"
+            popovertarget="delete-skill-{{ skill.id }}"
+            aria-label="Hapus {{ skill.tool_name }}"
+            title="Hapus skill">
+        Delete Skill
+    </button>
+</p>
+<div id="delete-skill-{{ skill.id }}"
+     class="skill-delete-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="delete-skill-title-{{ skill.id }}">
+    <button type="button"
+            class="skill-delete-modal__backdrop"
+            popovertarget="delete-skill-{{ skill.id }}"
+            popovertargetaction="hide"
+            aria-label="Tutup konfirmasi hapus"></button>
+    <div class="skill-delete-modal__content">
+        <button type="button"
+                class="skill-delete-modal__close"
+                popovertarget="delete-skill-{{ skill.id }}"
+                popovertargetaction="hide"
+                aria-label="Tutup konfirmasi hapus">&times;</button>
+        <h2 id="delete-skill-title-{{ skill.id }}">Delete Skill?</h2>
+        <p>
+            Are you sure you want to delete the skill
+            <strong>{{ skill.tool_name }}</strong>?
+        </p>
+        <div class="skill-delete-modal__actions">
+            <button type="button"
+                    class="button button-secondary"
+                    popovertarget="delete-skill-{{ skill.id }}"
+                    popovertargetaction="hide">Cancel</button>
+            <form method="post" action="{% url 'main:delete_skill' skill.id %}">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger">Yes, delete</button>
+            </form>
+        </div>
+    </div>
+</div>
