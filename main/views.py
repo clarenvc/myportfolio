@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
 
 from main.models import Experience
 from main.models import Skill
+from main.forms import SkillForm
 
 
 def show_main(request):
@@ -35,3 +37,18 @@ def show_skills(request):
         'skills': skills,
     }
     return render(request, 'skills.html', context)
+
+def create_skill(request):
+    form = SkillForm(request.POST or None)
+    
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Skill baru berhasil ditambahkan!")
+        return redirect("main:show_skills")
+        
+    context = {
+        "name": "Karen Lim",
+        "nickname": "Karen",
+        "form": form,
+    }
+    return render(request, "skills_form.html", context)
