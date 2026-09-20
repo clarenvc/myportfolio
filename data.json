@@ -1,0 +1,79 @@
+[
+{
+  "model": "main.experience",
+  "pk": "99894e2c-826c-4155-8971-972a119b625a",
+  "fields": {
+    "title": "SNF FEB UI's Volunteer Teacher",
+    "description": "Takes role as volunteer teacher in a student organization that brings alternative learning programs to elementary school children around the Universitas Indonesia campus in Depok.",
+    "category": "Part-time",
+    "thumbnail": null,
+    "started_at": "2026-09-09T07:51:02.721Z",
+    "ended_at": null
+  }
+},
+{
+  "model": "main.skill",
+  "pk": "257d5f74-ae45-4eba-8929-4e511215b998",
+  "fields": {
+    "tool_name": "test1",
+    "category_title": "test1",
+    "description": "test1",
+    "tool_logo_url": "https://c8.alamy.com/comp/2PJYBG3/cute-cat-logo-design-abstract-drawing-cat-in-a-minimalist-style-cartoon-cat-logo-vector-illustration-2PJYBG3.jpg",
+    "sub_skills": "none"
+  }
+},
+{
+  "model": "main.skill",
+  "pk": "87b136a0-cc4d-4c8a-9139-ada5666b421f",
+  "fields": {
+    "tool_name": "fig",
+    "category_title": "fig",
+    "description": "fig",
+    "tool_logo_url": "https://c8.alamy.com/comp/2PJYBG3/cute-cat-logo-design-abstract-drawing-cat-in-a-minimalist-style-cartoon-cat-logo-vector-illustration-2PJYBG3.jpg",
+    "sub_skills": "none"
+  }
+},
+{
+  "model": "main.skill",
+  "pk": "8f2f9314-25e0-4fe8-9086-53a2cda52661",
+  "fields": {
+    "tool_name": "figma",
+    "category_title": "figma",
+    "description": "figma",
+    "tool_logo_url": "https://c8.alamy.com/comp/2PJYBG3/cute-cat-logo-design-abstract-drawing-cat-in-a-minimalist-style-cartoon-cat-logo-vector-illustration-2PJYBG3.jpg",
+    "sub_skills": "none"
+  }
+},
+{
+  "model": "main.skill",
+  "pk": "a6865cfb-4581-492c-b712-861d8d18c1bb",
+  "fields": {
+    "tool_name": "Design",
+    "category_title": "Figma",
+    "description": "ya design",
+    "tool_logo_url": "https://c8.alamy.com/comp/2PJYBG3/cute-cat-logo-design-abstract-drawing-cat-in-a-minimalist-style-cartoon-cat-logo-vector-illustration-2PJYBG3.jpg",
+    "sub_skills": "none"
+  }
+},
+{
+  "model": "main.skill",
+  "pk": "ed21911f-43f6-40af-bc5f-1ba6d194c431",
+  "fields": {
+    "tool_name": "VS Code",
+    "category_title": "Programming",
+    "description": "Primary IDE used for software development, debugging, and managing multi-language codebases.",
+    "tool_logo_url": null,
+    "sub_skills": "Java, Python"
+  }
+},
+{
+  "model": "main.education",
+  "pk": "cb23c42e-c158-439f-b02f-c724860ca10e",
+  "fields": {
+    "school_name": "Universitas Indonesia",
+    "start_year": 2025,
+    "end_year": "Present",
+    "description": "Indonesia's top-ranked university. Currently pursuing a degree\r\n                in Computer Science, focusing on software engineering, AI, and\r\n                information systems."
+  }
+}
+]
