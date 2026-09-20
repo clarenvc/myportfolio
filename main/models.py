@@ -36,3 +36,13 @@ class Skill(models.Model):
 
     def __str__(self):
         return f"{self.tool_name} - {self.category_title}"
+    
+class Education(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    school_name = models.CharField(max_length=255)
+    start_year = models.IntegerField()
+    end_year = models.CharField(max_length=50) # Memakai CharField agar bisa diisi angka "2025" atau teks "Present"
+    description = models.TextField()
+
+    def __str__(self):
+        return self.school_name

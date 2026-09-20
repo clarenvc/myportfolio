@@ -1,5 +1,5 @@
-from django.forms import ModelForm, TextInput, Textarea, URLInput
-from main.models import Skill
+from django.forms import ModelForm, TextInput, Textarea, URLInput, NumberInput
+from main.models import Skill, Education
 
 class SkillForm(ModelForm):
     class Meta:
@@ -47,5 +47,32 @@ class SkillForm(ModelForm):
                     "placeholder": "Python, Java, Git",
                     "rows": 2,
                 }
+            ),
+        }
+
+class EducationForm(ModelForm):
+    class Meta:
+        model = Education
+        fields = ["school_name", "start_year", "end_year", "description"]
+        
+        labels = {
+            "school_name": "Nama Institusi / Sekolah",
+            "start_year": "Tahun Mulai",
+            "end_year": "Tahun Selesai",
+            "description": "Deskripsi",
+        }
+        
+        widgets = {
+            "school_name": TextInput(
+                attrs={"placeholder": "Universitas Indonesia", "class": "form-input"}
+            ),
+            "start_year": NumberInput(
+                attrs={"placeholder": "2025", "class": "form-input"}
+            ),
+            "end_year": TextInput(
+                attrs={"placeholder": "Present atau 2029", "class": "form-input"}
+            ),
+            "description": Textarea(
+                attrs={"placeholder": "Fokus pada software engineering...", "rows": 3, "class": "form-input"}
             ),
         }
