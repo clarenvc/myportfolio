@@ -3,9 +3,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
 from django.core import serializers
 
-from main.models import Experience
-from main.models import Skill
-from main.forms import SkillForm
+from main.models import Experience, Skill, Education
+from main.forms import SkillForm, EducationForm
+
+
 
 
 def show_main(request):
@@ -22,6 +23,7 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
+# ===========================================================
 
 def show_experience(request):
     context = {
@@ -31,8 +33,13 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
+# ===========================================================
+
 def show_skills(request):
-    skills = Skill.objects.all()
+    json_response = get_skills_json(request)
+    deserialized_skills = serializers.deserialize("json", json_response.content.decode("utf-8"))
+    skills = [skill.object for skill in deserialized_skills]
+    
     context = {
         'name': 'Karen Lim',
         'nickname': 'Karen',
@@ -56,16 +63,9 @@ def create_skill(request):
     return render(request, "skills_form.html", context)
 
 def get_skills_json(request):
-    json_response = get_skills_json(request)
-
-    deserialized_skills = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
- 
-    skills_list = [skill.object for skill in deserialized_skills]
     tool_query = request.GET.get("tool", "").strip()
-
+    skills = Skill.objects.all()
+    
     if tool_query:
         skills = skills.filter(tool_name__icontains=tool_query)
 
@@ -73,12 +73,73 @@ def get_skills_json(request):
     return HttpResponse(skills_json, content_type="application/json")
 
 def delete_skill(request, skill_id):
-    # Mencari skill berdasarkan primary key (UUID) atau mengembalikan 404 jika tidak ketemu
     skill = get_object_or_404(Skill, pk=skill_id)
   
     if request.method == "POST":
         skill.delete()
-        messages.success(request, "Skill berhasil dihapus!")
+        messages.success(request, "Skill successfully deleted!")
         return redirect("main:show_skills")
         
     return redirect("main:show_skills")
+
+# ===========================================================
+
+def get_education_json(request):
+    educations = Education.objects.all()
+    educations_json = serializers.serialize("json", educations)
+    return HttpResponse(educations_json, content_type="application/json")
+
+
+def show_education(request):
+    json_response = get_education_json(request)
+    educations_deserialized = serializers.deserialize("json", json_response.content.decode("utf-8"))
+    educations = [edu.object for edu in educations_deserialized]
+    
+    context = {
+        "name": "Karen Lim", 
+        "nickname": "Karen",
+        "educations": educations,
+    }
+    return render(request, "education.html", context)
+
+
+def create_education(request):
+    form = EducationForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Education history added successfully!")
+        return redirect("main:show_education")
+        
+    context = {
+        "name": "Karen Lim",
+        "nickname": "Karen",
+        "form": form
+    }
+    return render(request, "education_form.html", context)
+
+
+def edit_education(request, id):
+    education = get_object_or_404(Education, pk=id)
+    form = EducationForm(request.POST or None, instance=education)
+    
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Education history successfully updated!")
+        return redirect("main:show_education")
+        
+    context = {
+        "name": "Karen Lim",
+        "nickname": "Karen",
+        "form": form
+    }
+    return render(request, "education_form.html", context) 
+
+
+def delete_education(request, id):
+    education = get_object_or_404(Education, pk=id)
+    if request.method == "POST":
+        education.delete()
+        messages.success(request, "Education history successfully deleted!")
+        return redirect("main:show_education")
+    
+    return redirect("main:show_education")

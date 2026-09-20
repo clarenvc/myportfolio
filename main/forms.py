@@ -70,9 +70,9 @@ class EducationForm(ModelForm):
                 attrs={"placeholder": "2025", "class": "form-input"}
             ),
             "end_year": TextInput(
-                attrs={"placeholder": "Present atau 2029", "class": "form-input"}
+                attrs={"placeholder": "Present or 2029", "class": "form-input"}
             ),
             "description": Textarea(
-                attrs={"placeholder": "Fokus pada software engineering...", "rows": 3, "class": "form-input"}
+                attrs={"placeholder": "Brief description here...", "rows": 3, "class": "form-input"}
             ),
         }
