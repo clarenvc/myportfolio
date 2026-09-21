@@ -26,7 +26,7 @@ Down below is for answering reflective questions to complete for _Platform-Based
 
 **3.** Untuk sekarang, saya merasa sangat tidak efisien (terbatas) ketika saya harus menambahkan riwayat pendidikan atau mengganti informasi mengenai capaian pada tahun pendidikan tertentu. Dimana pada web statis ini, saya harus membuka editor _code_ dan melakukan perubahan pada file HTML secara manual. Lalu, untuk fungsionalitas yang ingin saya tambahkan adalah integrasi database dan membuat sistemnya (webnya) dapat memanage isi konten pada web, agar saya bisa melakukan operasi _CRUD_ (Create, Read, Update, Delete) secara langsung.
 
-> **P.S.** Tugas 1 ini saya kerjakan dengan bantuan AI, gemini, untuk memodifikasi `style.css`. Khususnya saya gunakan untuk mencari perkiraan sumber error dari _source code_ dimana AI menunjukkan beberapa kekurangan tag (seperti </div>) dan media query. Setelah diberi tau masalahnya apa, saya coba pahami bagian mana yang bermasalah dan dampak/efek samping apa yang disebabkan dari kurangnya tag-tag tertentu. Saya juga melakukan pengecekan sendiri agar saya lihat langsung dan menjadi pelajaran untuk diingat kedepannya.
+> **P.S.** Tugas 1 ini saya kerjakan dengan bantuan AI, gemini, untuk memodifikasi `style.css`. Khususnya saya gunakan untuk mencari perkiraan sumber error dari _source code_ dimana AI menunjukkan beberapa kekurangan tag (seperti `<div>`) dan media query. Setelah diberi tau masalahnya apa, saya coba pahami bagian mana yang bermasalah dan dampak/efek samping apa yang disebabkan dari kurangnya tag-tag tertentu. Saya juga melakukan pengecekan sendiri agar saya lihat langsung dan menjadi pelajaran untuk diingat kedepannya.
 
 ---
 
@@ -37,13 +37,17 @@ Down below is for answering reflective questions to complete for _Platform-Based
 **2.** Ada 2 alasan utama yaitu:
 
 - **Kemudahan pemeliharaan (Maintanability)**
+
   => Karena akan lebih aman dan lebih mudah ketika ingin menambah, mengedit, atau menghapus data yang tersimpan di model melalui halaman Django Admin atau Django shell (tidak hard-coded). Daripada harus membuka file HTML nya dan mencari data yang ingin diubah dari sekian banyaknya baris yang ada, belum lagi jika tidak sengaja mengubah bagian lain yang tidak berhubungan.
+
 - **Pengembangan aplikasi (Scalability)**
+
   => Data yang disimpan oleh model bersifat dinamis dan terpusat di SQLite (`db.sqlite3`). Sehingga lebih mudah untuk memanipulasi data misal jika ingin melalukan _sorting_ atau mengurutkan data (misal: _newest to oldest_) atau bisa juga untuk melakukan _filtering_ (untuk kategori tertentu) di berbagai halaman sekaligus, tanpa perlu mengubah 1 per 1 file htmlnya.
 
 **3.** _Makemigrations_ dan _migrate_ keduanya sama-sama digunakan jika ada perubahan di model. Tapi, _makemigrations_ itu lebih berperan sebagai yang meng-"save" ketika ada perubahan di model. Fungsi ini akan membandingkan dengan kondisi sebelumnya, dan menyimpan perubahan jika diperlukan. Sementara _migrate_ itu yang menerapkan atau meng-"execute" perubahan yang disimpan oleh si _makemigrations_. Fungsi _migrate_ tadi akan menerjemahkannya menjadi perintah SQL dan menerapkan perintah tersebut ke dalam database (benar-benar melakukan aksi seperti membuat tabel atau kolom baru di SQLite).
 
 Contoh perubahan pada model yang membutuhkan _makemigrations_ dan _migrate_:
+
 => Pada model skills yang aku tambahkan kemarin untuk Tugas 2, aku baru sadar bahwa aku belum menambahkan klasifikasi untuk tingkat skill yang aku miliki (mau melakukan sorting tingkat skill dari _beginner, intermediate, proficient_) maka aku harus melakukan perubahan di `models.py` pada class `Skill`. Misal aku menambahkan field baru dengan kode:
 
 `proficiency_level = models.CharField(max_length=50)`
@@ -59,9 +63,11 @@ setelah menambahkan baris kode baru itu dan melakukan _makemigrations_, fungsi i
 **1.** _ModelForm_ lebih disarankan dibanding membuat form HTML secara manual karena ada beberapa prinsip fundamental dalam pemrograman demi kelancaran pengembangan dan pemeliharan dan pengembangan aplikasi, antara lain:
 
 - **DRY (Don't Repeat Yourself) & Integrasi Otomatis:**
+
   => _ModelForm_ secara otomatis membuatkan elemen input HTML berdasarkan struktur field yang sudah didefinisikan pada Model Django. Dengan menerapkan prinsip DRY, aplikasi menjadi lebih mudah dirawat, mencegah terjadinya bug atau inkonsistensi ketika ingin menyalin atau menempelkan kode baru, dan kode juga menjadi lebih bersih (ringkas, mudah dibaca, dan lebih rapih).
 
-  **Validasi Data Terintegrasi:**
+- **Validasi Data Terintegrasi:**
+
   => Selain itu, _ModelForm_ juga menangani proses validasi tipe data (seperti tipe angka pada _IntegerField_ atau teks pada _CharField_) dan sanitasi data secara otomatis sebelum disimpan ke basis data.
 
 Terakhir, `{% csrf_token %}` wajib ditambahkan untuk meningkatkan keamanan aplikasi kita dari serangan CSRF _(Cross-site Request Forgery)_ dengan menyisipkan token rahasia unik pada setiap form dengan metode `POST`.

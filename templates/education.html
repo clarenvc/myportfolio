@@ -1,18 +1,31 @@
-{% extends "base.html" %}
-{% load static %} 
-
-{% block meta %}
+{% extends "base.html" %} {% load static %} {% block meta %}
 <title>{{ nickname }}'s - Education</title>
-{% endblock meta %}
-
-{% block content %}
+{% endblock meta %} {% block content %}
 <main>
   <section class="my-education">
     <div class="container">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+        "
+      >
         <h2>Education History</h2>
         <!-- Tombol Tambah Data -->
-        <a href="{% url 'main:create_education' %}" style="background: var(--accent); color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: var(--radius); font-weight: bold; font-family: 'Times New Roman', serif;">
+        <a
+          href="{% url 'main:create_education' %}"
+          style="
+            background: var(--accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: bold;
+            font-family: &quot;Times New Roman&quot;, serif;
+          "
+        >
           + Tambah Education
         </a>
       </div>
@@ -20,22 +33,69 @@
       <div class="education-container">
         {% for edu in educations %}
         <div class="edu-card">
-          <span class="edu-year">{{ edu.start_year }} — {{ edu.end_year }}</span>
+          <span class="edu-year"
+            >{{ edu.start_year }} — {{ edu.end_year }}</span
+          >
           <h3 class="edu-school">{{ edu.school_name }}</h3>
           <p class="edu-desc">{{ edu.description }}</p>
-          
+
           <!-- Tombol Edit & Delete -->
-          <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
-              <a href="{% url 'main:edit_education' edu.id %}" style="background: var(--text-muted); color: white; padding: 0.4rem 1rem; text-decoration: none; border-radius: var(--radius); font-size: 0.9rem; font-family: 'Times New Roman', serif;">
-                Edit
-              </a>
-              
-              <form method="post" action="{% url 'main:delete_education' edu.id %}" style="margin: 0;">
-                  {% csrf_token %}
-                  <button type="submit" style="background: #b42318; color: white; border: none; padding: 0.4rem 1rem; border-radius: var(--radius); font-size: 0.9rem; cursor: pointer; font-family: 'Times New Roman', serif;">
-                    Delete
-                  </button>
-              </form>
+          <div
+            style="
+              margin-top: 1.5rem;
+              display: flex;
+              gap: 0.5rem;
+              justify-content: flex-end;
+              align-items: center;
+            "
+          >
+            <a
+              href="{% url 'main:edit_education' edu.id %}"
+              style="
+                height: 36px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                box-sizing: border-box;
+                background: var(--text-muted);
+                color: white;
+                padding: 0 1rem;
+                text-decoration: none;
+                border-radius: var(--radius);
+                font-size: 0.9rem;
+                font-family: &quot;Times New Roman&quot;, serif;
+              "
+            >
+              Edit
+            </a>
+
+            <form
+              method="post"
+              action="{% url 'main:delete_education' edu.id %}"
+              style="margin: 0; display: flex; height: 36px"
+            >
+              {% csrf_token %}
+              <button
+                type="submit"
+                style="
+                  height: 100%;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  box-sizing: border-box;
+                  background: #b42318;
+                  color: white;
+                  border: none;
+                  padding: 0 1rem;
+                  border-radius: var(--radius);
+                  font-size: 0.9rem;
+                  cursor: pointer;
+                  font-family: &quot;Times New Roman&quot;, serif;
+                "
+              >
+                Delete
+              </button>
+            </form>
           </div>
         </div>
         {% empty %}
