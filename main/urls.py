@@ -4,6 +4,7 @@ from main.views import (
     show_main, show_experience, 
     show_skills, create_skill, get_skills_json, delete_skill, 
     show_education, get_education_json, create_education, edit_education, delete_education,
+    register, login_user, logout_user,
 )
 
 app_name = "main"
@@ -28,4 +29,9 @@ urlpatterns = [
     path("education/add/", create_education, name="create_education"),
     path("education/edit/<uuid:id>/", edit_education, name="edit_education"),
     path("education/delete/<uuid:id>/", delete_education, name="delete_education"),
+
+# USER
+    path("register/", register, name="register"),
+    path("login/", login_user, name="login"),
+    path("logout/", logout_user, name="logout"),
 ]

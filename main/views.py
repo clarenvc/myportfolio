@@ -171,3 +171,7 @@ def login_user(request):
         "name": "Karen",
         "form": form,
     }
+
+def logout_user(request):
+    logout(request)
+    return redirect("main:show_main")
