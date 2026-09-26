@@ -2,11 +2,11 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
 from django.core import serializers
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from main.models import Experience, Skill, Education
 from main.forms import SkillForm, EducationForm
-
-
 
 
 def show_main(request):
@@ -143,3 +143,19 @@ def delete_education(request, id):
         return redirect("main:show_education")
     
     return redirect("main:show_education")
+
+# =======================================================================
+
+def register(request): 
+    form = UserCreationForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.succes(request, "Akun berhasil dibuat. Silakan login.")
+        return redirect("main:login")
+
+    context = {
+        "name": "Karen",
+        "form": form,
+    }
+    return render(request, "register.html", context)
