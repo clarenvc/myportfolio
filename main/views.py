@@ -151,11 +151,11 @@ def register(request):
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.succes(request, "Akun berhasil dibuat. Silakan login.")
+        messages.success(request, "Akun berhasil dibuat. Silakan login.")
         return redirect("main:login")
 
     context = {
-        "name": "Karen",
+        "nickname": "Karen",
         "form": form,
     }
     return render(request, "register.html", context)
@@ -165,12 +165,13 @@ def login_user(request):
 
     if request.method == "POST" and form.is_valid():
         login(request, form.get_user())
-        return redirect("main: show_main")
+        return redirect("main:show_main")
 
     context = {
-        "name": "Karen",
+        "nickname": "Karen",
         "form": form,
     }
+    return render(request, "login.html", context)
 
 def logout_user(request):
     logout(request)

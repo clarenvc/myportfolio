@@ -1,59 +1,95 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <!-- Assets Umum (Fonts & CSS) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
     <link rel="stylesheet" href="/static/css/style.css" />
-    
-    <!-- <title> masing2 halaman -->
-    {% block meta %} 
-    {% endblock meta %}
 
+    <!-- <title> masing2 halaman -->
+    {% block meta %} {% endblock meta %}
   </head>
   <body>
     <!-- Navbar -->
     <header class="site-header">
-      <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 1.25rem;">
-          <div class="top-social-logos" style="display: flex; gap: 0.75rem;">
-            <a href="https://github.com/clarenvc/myportfolio/blob/main/README.md/" target="_blank" title="GitHub" style="color: #fff; font-size: 1.1rem;">
+      <div
+        class="container"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div style="display: flex; align-items: center; gap: 1.25rem">
+          <div class="top-social-logos" style="display: flex; gap: 0.75rem">
+            <a
+              href="https://github.com/clarenvc/myportfolio/blob/main/README.md/"
+              target="_blank"
+              title="GitHub"
+              style="color: #fff; font-size: 1.1rem"
+            >
               <i class="fa-brands fa-github"></i>
             </a>
-            <a href="https://www.linkedin.com/in/karen-lim-632758371/" target="_blank" title="LinkedIn" style="color: #fff; font-size: 1.1rem;">
+            <a
+              href="https://www.linkedin.com/in/karen-lim-632758371/"
+              target="_blank"
+              title="LinkedIn"
+              style="color: #fff; font-size: 1.1rem"
+            >
               <i class="fa-brands fa-linkedin"></i>
             </a>
-            <a href="mailto:clarenvc@gmail.com" title="Email" style="color: #fff; font-size: 1.1rem;">
+            <a
+              href="mailto:clarenvc@gmail.com"
+              title="Email"
+              style="color: #fff; font-size: 1.1rem"
+            >
               <i class="fa-solid fa-envelope"></i>
             </a>
           </div>
-          <a href="{% url 'main:show_main' %}" class="brand">{{ nickname }}'s Portfolio</a>
+          <a href="{% url 'main:show_main' %}" class="brand"
+            >{{ nickname }}'s Portfolio</a
+          >
         </div>
-        
+
         <!-- Tampilan Navbar -->
         <nav>
           <a href="{% url 'main:show_main' %}">Profile</a>
           <a href="{% url 'main:show_experience' %}">Experience</a>
           <a href="{% url 'main:show_skills' %}">Skills</a>
           <a href="{% url 'main:show_education' %}">Education</a>
+          {% if user.is_authenticated %}
+          <span class="nav-user">{{ user.username }}</span>
+          <a href="{% url 'main:logout' %}">Logout</a>
+          {% else %}
+          <a href="{% url 'main:login' %}">Login</a>
+          <a href="{% url 'main:register' %}">Register</a>
+          {% endif %}
         </nav>
       </div>
     </header>
 
     <!-- <main> masing2 file -->
-    {% block content %} 
-    {% endblock content %}
+    {% block content %} {% endblock content %}
 
     <!-- Footer -->
     <footer class="site-footer">
       <div class="container">
-        <p>&copy; 2026 {{ name }}. Faculty of Computer Science, University of Indonesia.</p>
+        <p>
+          &copy; 2026 {{ name }}. Faculty of Computer Science, University of
+          Indonesia.
+        </p>
       </div>
     </footer>
   </body>
