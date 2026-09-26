@@ -12,6 +12,7 @@ import datetime
 
 
 def show_main(request):
+    last_login = request.COOKIES.get('last_login', 'No login sessions found.')
     context = {
         "nickname": "Karen",
         "name": "Karen Lim",
@@ -170,7 +171,7 @@ def login_user(request):
         user = form.get_user()
         login(request, form.get_user())
         response = redirect("main:show_main")
-        response.set_cookie('last_login', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        response.set_cookie("last_login", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         return response
 
     context = {
@@ -181,4 +182,6 @@ def login_user(request):
 
 def logout_user(request):
     logout(request)
-    return redirect("main:show_main")
+    response = redirect("main:show_main")
+    response.delete_cookie('last_login')
+    return response
