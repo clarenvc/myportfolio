@@ -4,9 +4,12 @@ from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied 
 
 from main.models import Experience, Skill, Education
 from main.forms import SkillForm, EducationForm
+
 
 import datetime
 
@@ -106,8 +109,11 @@ def show_education(request):
     }
     return render(request, "education.html", context)
 
-
+@login_required(login_url="/login/")
 def create_education(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     form = EducationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -121,8 +127,11 @@ def create_education(request):
     }
     return render(request, "education_form.html", context)
 
-
+@login_required(login_url="/login/") 
 def edit_education(request, id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     education = get_object_or_404(Education, pk=id)
     form = EducationForm(request.POST or None, instance=education)
     
@@ -138,8 +147,11 @@ def edit_education(request, id):
     }
     return render(request, "education_form.html", context) 
 
-
+@login_required(login_url="/login/")
 def delete_education(request, id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     education = get_object_or_404(Education, pk=id)
     if request.method == "POST":
         education.delete()
