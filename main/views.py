@@ -22,6 +22,7 @@ def show_main(request):
             " program. Currently pursuing my degree with interests in game"
             " development and web development."
         ),
+        "last_login": last_login,
     }
     return render(request, "index.html", context)
 
