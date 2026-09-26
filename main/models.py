@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User
 
 class Experience(models.Model):
     EXPERIENCE_CHOICES = [
@@ -33,6 +34,7 @@ class Skill(models.Model):
     tool_logo_url = models.URLField(blank=True, null=True) # Untuk logo software di kiri 
     
     sub_skills = models.TextField(blank=True, null=True) # Contoh: Java, Python (bisa dirender dengan ikon)
+    starred_by = models.ManyToManyField(User, related_name="starred_projects", blank=True)
 
     def __str__(self):
         return f"{self.tool_name} - {self.category_title}"

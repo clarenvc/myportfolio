@@ -21,8 +21,11 @@
           class="experience-card"
           style="display: flex; align-items: center; gap: 2rem"
         >
-          <!-- Tombol apus skill -->
-          <div class="skill-card-actions">
+        <div class="skill-card-actions">
+          <!-- Tombol star -->
+          {% include "components/skill_star.html" with skill=skill %}
+          
+            <!-- Tombol apus skill -->
             {% if user.is_superuser %}
               {% include "components/skill_delete_modal.html" with skill=skill %}
             {% endif %}

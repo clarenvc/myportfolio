@@ -89,6 +89,17 @@ def delete_skill(request, skill_id):
         
     return redirect("main:show_skills")
 
+@login_required(login_url="/login/")
+def toggle_star(request, skill_id):
+    project = get_object_or_404(Skill, pk=skill_id)
+
+    if request.method == "POST":
+        if request.user in project.starred_by.all():
+            project.starred_by.remove(request.user)
+        else:
+            project.starred_by.add(request.user)
+
+    return redirect("main:show_skills")
 # ===========================================================
 
 def get_education_json(request):
