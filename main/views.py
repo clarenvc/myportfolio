@@ -76,7 +76,7 @@ def get_skills_json(request):
     if tool_query:
         skills = skills.filter(tool_name__icontains=tool_query)
 
-    skills_json = serializers.serialize("json", skills)
+    skills_json = serializers.serialize("json", skills, use_natural_foreign_keys=True)
     return HttpResponse(skills_json, content_type="application/json")
 
 def delete_skill(request, skill_id):
