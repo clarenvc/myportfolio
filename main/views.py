@@ -99,14 +99,14 @@ def delete_skill(request, skill_id):
     return redirect("main:show_skills")
 
 @login_required(login_url="/login/")
-def toggle_star(request, skill_id):
-    project = get_object_or_404(Skill, pk=skill_id)
+def toggle_star_skill(request, id):
+    skill = get_object_or_404(Education, pk=id)
 
     if request.method == "POST":
-        if request.user in project.starred_by.all():
-            project.starred_by.remove(request.user)
+        if request.user in skill.starred_by.all():
+            skill.starred_by.remove(request.user)
         else:
-            project.starred_by.add(request.user)
+            skill.starred_by.add(request.user)
 
     return redirect("main:show_skills")
 
@@ -180,6 +180,18 @@ def delete_education(request, id):
         messages.success(request, "Education history successfully deleted!")
         return redirect("main:show_education")
     
+    return redirect("main:show_education")
+
+@login_required(login_url="/login/")
+def toggle_star_education(request, id):
+    education = get_object_or_404(Education, pk=id)
+
+    if request.method == "POST":
+        if request.user in education.starred_by.all():
+            education.starred_by.remove(request.user)
+        else:
+            education.starred_by.add(request.user)
+
     return redirect("main:show_education")
 
 # USER =======================================================================

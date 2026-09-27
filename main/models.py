@@ -45,6 +45,8 @@ class Education(models.Model):
     start_year = models.IntegerField()
     end_year = models.CharField(max_length=50) # Memakai CharField agar bisa diisi angka "2025" atau teks "Present"
     description = models.TextField()
+    starred_by = models.ManyToManyField(User, related_name="starred_educations", blank=True)
+
 
     def __str__(self):
         return self.school_name
