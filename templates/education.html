@@ -41,17 +41,17 @@
           <h3 class="edu-school">{{ edu.school_name }}</h3>
           <p class="edu-desc">{{ edu.description }}</p>
 
-          <!-- Tombol Edit & Delete -->
           <div
-            style="
+          style="
               margin-top: 1.5rem;
               display: flex;
               gap: 0.5rem;
               justify-content: flex-end;
               align-items: center;
-            "
+              "
           >
-            {% if user.is_superuser %}
+            <!-- Tombol Edit -->
+            {% if user.is_superuser or is_editor %}
               <a
                 href="{% url 'main:edit_education' edu.id %}"
                 style="
@@ -71,7 +71,10 @@
               >
                 Edit
               </a>
+            {% endif %}
 
+          <!-- Tombol Edit -->
+            {% if user.is_superuser %}
               <form
                 method="post"
                 action="{% url 'main:delete_education' edu.id %}"

@@ -13,6 +13,7 @@ from main.forms import SkillForm, EducationForm
 
 import datetime
 
+# LANDING PAGE (MAIN) ==================================================
 
 def show_main(request):
     last_login = request.COOKIES.get('last_login', 'No login sessions found.')
@@ -30,7 +31,7 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
-# ===========================================================
+# EXPERIENCE ===========================================================
 
 def show_experience(request):
     context = {
@@ -40,7 +41,7 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
-# ===========================================================
+# SKILLS ===========================================================
 
 def show_skills(request):
     json_response = get_skills_json(request)
@@ -54,7 +55,11 @@ def show_skills(request):
     }
     return render(request, 'skills.html', context)
 
+@login_required(login_url="/login/")
 def create_skill(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     form = SkillForm(request.POST or None)
     
     if request.method == "POST" and form.is_valid():
@@ -79,7 +84,11 @@ def get_skills_json(request):
     skills_json = serializers.serialize("json", skills, use_natural_foreign_keys=True)
     return HttpResponse(skills_json, content_type="application/json")
 
+@login_required(login_url="/login/")
 def delete_skill(request, skill_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     skill = get_object_or_404(Skill, pk=skill_id)
   
     if request.method == "POST":
@@ -100,7 +109,8 @@ def toggle_star(request, skill_id):
             project.starred_by.add(request.user)
 
     return redirect("main:show_skills")
-# ===========================================================
+
+# EDUCATION ===========================================================
 
 def get_education_json(request):
     educations = Education.objects.all()
@@ -117,6 +127,7 @@ def show_education(request):
         "name": "Karen Lim", 
         "nickname": "Karen",
         "educations": educations,
+         "is_editor": is_editor(request.user), #buat nti cek is_editor or no, klo bener ya dia return exists()
     }
     return render(request, "education.html", context)
 
@@ -140,9 +151,9 @@ def create_education(request):
 
 @login_required(login_url="/login/") 
 def edit_education(request, id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
-    
+
     education = get_object_or_404(Education, pk=id)
     form = EducationForm(request.POST or None, instance=education)
     
@@ -154,7 +165,7 @@ def edit_education(request, id):
     context = {
         "name": "Karen Lim",
         "nickname": "Karen",
-        "form": form
+        "form": form,
     }
     return render(request, "education_form.html", context) 
 
@@ -171,7 +182,7 @@ def delete_education(request, id):
     
     return redirect("main:show_education")
 
-# =======================================================================
+# USER =======================================================================
 
 def register(request): 
     form = UserCreationForm(request.POST or None)
@@ -208,3 +219,6 @@ def logout_user(request):
     response = redirect("main:show_main")
     response.delete_cookie('last_login')
     return response
+
+def is_editor(user):
+    return user.groups.filter(name="Editor").exists()
