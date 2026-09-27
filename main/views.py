@@ -10,7 +10,6 @@ from django.core.exceptions import PermissionDenied
 from main.models import Experience, Skill, Education
 from main.forms import SkillForm, EducationForm
 
-
 import datetime
 
 # LANDING PAGE (MAIN) ==================================================
