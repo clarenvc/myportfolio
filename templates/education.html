@@ -52,7 +52,7 @@
           >
 
             <!-- Tombol Star -->
-            <form method="post" action="{% url 'main:toggle_star_education' edu.id %}" class="star-form" style="margin-right: auto; margin-bottom: 0;">
+            <form method="POST" action="{% url 'main:toggle_star_education' edu.id %}" class="star-form" style="margin-right: auto; margin-bottom: 0;">
                 {% csrf_token %}
                 <!-- Class 'is-starred' akan aktif kalau user sudah like -->
                 <button type="submit" class="button-star {% if user in edu.starred_by.all %}is-starred{% endif %}" style="border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); cursor: pointer; font-family: 'Times New Roman', serif;">

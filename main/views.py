@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.core import serializers
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -99,8 +99,8 @@ def delete_skill(request, skill_id):
     return redirect("main:show_skills")
 
 @login_required(login_url="/login/")
-def toggle_star_skill(request, id):
-    skill = get_object_or_404(Education, pk=id)
+def toggle_star_skill(request, skill_id):
+    skill = get_object_or_404(Skill, pk=skill_id)
 
     if request.method == "POST":
         if request.user in skill.starred_by.all():
