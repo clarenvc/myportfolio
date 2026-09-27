@@ -110,3 +110,38 @@ Terakhir, proses _serialization_ sangat dibutuhkan karena objek model/QuerySet p
 > > _"Saya sudah jalankan `loaddata` di terminal lokal, tapi web PWS masih kosong. Apakah file `db.sqlite3` memang tidak di-push ke Git? Bagaimana cara menyinkronkan data dari lokal ke PWS menggunakan fixture?"_
 >
 > </details>
+
+---
+
+### TUGAS 4
+
+> **P.S.** Tugas 4 ini saya kerjakan dengan bantuan Gemini AI, sebagai rekan diskusi saya dan asisten _debugging_ khususnya ketika error muncul.
+>
+> #### 1. **Strategi Prompting & Tools**
+>
+> - **Tools yang Digunakan:** Gemini 1.5 Pro / Flash.
+> - **Strategi Prompting:**
+>   - Menggunakan pendekatan _Chain-of-Thought_ untuk memecah logika implementasi fitur (seperti transisi data dari query set ke deserialisasi JSON).
+>   - Melakukan validasi kritis terhadap kecocokan aturan modul dengan struktur kode yang ditulis (misalnya memastikan tipe data `IntegerField` vs `CharField` pada _ModelForm_ sesuai dengan kebutuhan validasi form).
+>   - Menguji pemahaman arsitektur keamanan dengan mendiskusikan implementasi pembatasan akses server (_Server-side check_ & penanganan _Forbidden/PermissionDenied_) secara mandiri.
+>
+> #### 2. **Bagian Spesifik yang Dibantu AI & Evaluasi Kritis**
+>
+> - **Deserialisasi JSON & ModelForm:** AI membantu memetakan ulang fungsi `show_education` agar tidak lagi mengambil data langsung dari basis data mentah, melainkan melalui proses deserialisasi objek JSON. Namun, saya melakukan _refactoring_ dan penyesuaian manual pada _mapping field_ di `forms.py` agar atribut penamaan variabel konsisten dengan model yang ada.
+> - **Otorisasi & Keamanan Sisi Server:** AI memberikan panduan implementasi pelindung _view_ CRUD. Saya secara aktif memverifikasi kesesuaian proteksi tersebut dengan menguji coba akses ilegal secara manual di peramban untuk memastikan respons _Forbidden_ berjalan semestinya.
+> - **Dokumentasi & Analisis:** Membantu menstrukturkan poin-poin penjelasan teknis agar selaras dengan standar dokumentasi _open-source_, yang kemudian saya kurasi ulang agar sesuai dengan konteks implementasi nyata pada proyek saya.
+>
+> #### 3. **Cuplikan Chat Log AI & Diskusi Kritis**
+>
+> <details>
+> <summary>Klik untuk melihat log diskusi saya dengan AI</summary>
+>
+> **Prompt 1 (Validasi Tipe Data ModelForm):**
+>
+> > _"Di model Education, aku pakai `end_year` sebagai CharField supaya bisa diisi 'Present' atau angka tahun, tapi field lainnya beda-beda tipe. Apakah ini sudah aman dikategorikan minimal 3 tipe data bervariasi di mata asdos dan Django?"_
+>
+> **Prompt 2 (Verifikasi Deserialisasi View):**
+>
+> > _"Fungsi `show_education` sebelumnya masih query langsung ke database. Bagaimana cara mengubahnya agar benar-benar merender data setelah melalui proses deserialisasi JSON dari endpoint view yang sudah dibuat tanpa merusak format template?"_
+>
+> </details>
