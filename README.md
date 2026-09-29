@@ -125,13 +125,13 @@ Terakhir, proses _serialization_ sangat dibutuhkan karena objek model/QuerySet p
 >   - Melakukan validasi kritis terhadap kecocokan aturan modul dengan struktur kode yang ditulis (misalnya memastikan tipe data `IntegerField` vs `CharField` pada _ModelForm_ sesuai dengan kebutuhan validasi form).
 >   - Menguji pemahaman arsitektur keamanan dengan mendiskusikan implementasi pembatasan akses server (_Server-side check_ & penanganan _Forbidden/PermissionDenied_) secara mandiri.
 >
-> #### 2. **Bagian Spesifik yang Dibantu AI & Evaluasi Kritis**
+> #### 2. **Bagian Spesifik yang Dibantu AI**
 >
 > - **Deserialisasi JSON & ModelForm:** AI membantu memetakan ulang fungsi `show_education` agar tidak lagi mengambil data langsung dari basis data mentah, melainkan melalui proses deserialisasi objek JSON. Namun, saya melakukan _refactoring_ dan penyesuaian manual pada _mapping field_ di `forms.py` agar atribut penamaan variabel konsisten dengan model yang ada.
 > - **Otorisasi & Keamanan Sisi Server:** AI memberikan panduan implementasi pelindung _view_ CRUD. Saya secara aktif memverifikasi kesesuaian proteksi tersebut dengan menguji coba akses ilegal secara manual di peramban untuk memastikan respons _Forbidden_ berjalan semestinya.
 > - **Dokumentasi & Analisis:** Membantu menstrukturkan poin-poin penjelasan teknis agar selaras dengan standar dokumentasi _open-source_, yang kemudian saya kurasi ulang agar sesuai dengan konteks implementasi nyata pada proyek saya.
 >
-> #### 3. **Cuplikan Chat Log AI & Diskusi Kritis**
+> #### 3. **Cuplikan Chat Log AI & Diskusi Saya**
 >
 > <details>
 > <summary>Klik untuk melihat log diskusi saya dengan AI</summary>

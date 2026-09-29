@@ -1,16 +1,25 @@
-{% extends "base.html" %} 
-{% load static %} 
-
-{% block meta %}
+{% extends "base.html" %} {% load static %} {% block meta %}
 <title>{{ nickname }}'s - Skills</title>
-{% endblock meta %} 
-
-{% block content %}
+{% endblock meta %} {% block content %}
 <main>
   <section class="experience-section" id="skills">
     <div class="container">
       <p class="section-kicker">What I do and What I Use</p>
       <h1 style="margin-bottom: 2rem">Skills</h1>
+
+      <!-- TEST NOTIFIKASI TOAST -->
+      <button
+        class="button button-secondary"
+        onclick="
+          showToast(
+            'System notification!',
+            'Skill has been added succesfully!',
+            'success',
+          )
+        "
+      >
+        Test Toast Notifikasi
+      </button>
 
       <div
         class="experience-grid"
@@ -21,14 +30,13 @@
           class="experience-card"
           style="display: flex; align-items: center; gap: 2rem"
         >
-        <div class="skill-card-actions">
-          <!-- Tombol star -->
-          {% include "components/skill_star.html" with skill=skill %}
-          
+          <div class="skill-card-actions">
+            <!-- Tombol star -->
+            {% include "components/skill_star.html" with skill=skill %}
+
             <!-- Tombol apus skill -->
-            {% if user.is_superuser %}
-              {% include "components/skill_delete_modal.html" with skill=skill %}
-            {% endif %}
+            {% if user.is_superuser %} {% include
+            "components/skill_delete_modal.html" with skill=skill %} {% endif %}
           </div>
 
           <!-- Bagian Kiri: Kotak Logo dengan Gradien -->
