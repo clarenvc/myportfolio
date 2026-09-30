@@ -71,6 +71,8 @@
   const gridContainer = document.getElementById('grid');
   const searchForm = document.getElementById('skill-search-form');
   const searchInput = document.getElementById('search-input');
+  const SEARCH_DEBOUNCE_DELAY = 300;
+  let searchDebounceTimer;
 
   // 3. Fungsi untuk mengatur section mana yang tampil
   function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
@@ -197,9 +199,16 @@
   }
 
   // 6. Event Handlers
-  searchForm.addEventListener('submit', function(e) {
-    e.preventDefault(); // Mencegah browser melakukan reload halaman
-    fetchSkills(searchInput.value.trim()); // Memanggil AJAX
+  function searchSkills() {
+    fetchSkills(searchInput.value.trim());
+  }
+
+  // Event saat pengguna sedang mengetik (otomatis mencari tanpa tekan Enter)
+  searchInput.addEventListener("input", function() {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(function() {
+      searchSkills();
+    }, SEARCH_DEBOUNCE_DELAY);
   });
 
   // 7. Jalankan Fetch pertama kali saat halaman dimuat
