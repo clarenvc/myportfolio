@@ -1,4 +1,7 @@
 from django.forms import ModelForm, TextInput, Textarea, URLInput, NumberInput
+from django.utils.html import strip_tags
+from django.core.exceptions import ValidationError
+
 from main.models import Skill, Education
 
 class SkillForm(ModelForm):
@@ -49,6 +52,17 @@ class SkillForm(ModelForm):
                 }
             ),
         }
+    def clean_tool_name(self):
+        tool_name = strip_tags(self.cleaned_data["tool_name"]).strip()
+        if not tool_name:
+            raise ValidationError("Nama tool tidak boleh hanya berisi tag HTML.")
+        return tool_name
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()
+
+    def clean_sub_skills(self):
+        return strip_tags(self.cleaned_data["sub_skills"]).strip()
 
 class EducationForm(ModelForm):
     class Meta:
