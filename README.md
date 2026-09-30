@@ -145,3 +145,4 @@ Terakhir, proses _serialization_ sangat dibutuhkan karena objek model/QuerySet p
 > > _"Fungsi `show_education` sebelumnya masih query langsung ke database. Bagaimana cara mengubahnya agar benar-benar merender data setelah melalui proses deserialisasi JSON dari endpoint view yang sudah dibuat tanpa merusak format template?"_
 >
 > </details>
+
