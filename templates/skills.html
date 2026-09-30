@@ -7,6 +7,20 @@
       <p class="section-kicker">What I do and What I Use</p>
       <h1 style="margin-bottom: 2rem">Skills</h1>
 
+      <!-- FORM PENCARIAN (AJAX) -->
+      <form id="skill-search-form" class="skill-search" style="margin-bottom: 2rem">
+        <input
+          type="search"
+          id="search-input"
+          name="tool"
+          value="{{ tool_query }}"
+          placeholder="Cari berdasarkan nama tool/skill"
+          class="skill-search__input"
+          aria-label="Cari berdasarkan nama tool"
+        />
+        <button type="submit" class="button">Cari</button>
+      </form>
+
       <!-- TEST NOTIFIKASI TOAST -->
       <button
         class="button button-secondary"
@@ -21,110 +35,175 @@
         Test Toast Notifikasi
       </button>
 
-      <div
-        class="experience-grid"
-        style="display: flex; flex-direction: column; gap: 1rem"
-      >
-        {% for skill in skills %}
-        <article
-          class="experience-card"
-          style="display: flex; align-items: center; gap: 2rem"
-        >
-          <div class="skill-card-actions">
-            <!-- Tombol star -->
-            {% include "components/skill_star.html" with skill=skill %}
-
-            <!-- Tombol apus skill -->
-            {% if user.is_superuser %} {% include
-            "components/skill_delete_modal.html" with skill=skill %} {% endif %}
-          </div>
-
-          <!-- Bagian Kiri: Kotak Logo dengan Gradien -->
-          <div
-            style="
-              flex-shrink: 0;
-              width: 120px;
-              display: flex;
-              justify-content: center;
-            "
-          >
-            <img
-              src="{% if skill.tool_logo_url %}{{ skill.tool_logo_url }}{% else %}https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg{% endif %}"
-              alt="{{ skill.tool_name }} Logo"
-              style="
-                width: 100%;
-                height: auto;
-                filter: brightness(0.8);
-                -webkit-mask-image: linear-gradient(
-                  to right,
-                  rgba(0, 0, 0, 0.8) 0%,
-                  rgba(0, 0, 0, 0.2) 100%
-                );
-                mask-image: linear-gradient(
-                  to right,
-                  rgba(0, 0, 0, 0.8) 0%,
-                  rgba(0, 0, 0, 0.2) 100%
-                );
-              "
-            />
-          </div>
-
-          <!-- Bagian Kanan: Konten Teks -->
-          <div style="flex-grow: 1">
-            <!-- PERUBAHAN: Memakai class 'experience-category' agar gaya teks kategori sama persis dengan Experience -->
-            <span
-              class="experience-category"
-              style="display: block; margin-bottom: 0.25rem"
-            >
-              {{ skill.category_title }}
-            </span>
-            <h2
-              style="
-                margin: 0 0 0.5rem 0;
-                font-size: 1.25rem;
-                font-weight: bold;
-                color: var(--ink);
-              "
-            >
-              {{ skill.tool_name }}
-            </h2>
-            <!-- PERUBAHAN: Memakai class 'experience-description' agar warna teks deskripsi seragam -->
-            <p class="experience-description" style="margin-bottom: 1rem">
-              {{ skill.description }}
-            </p>
-            <!-- Sub-skills / Bahasa Pemrograman Pendukung -->
-            {% if skill.sub_skills %}
-            <p
-              class="experience-status"
-              style="
-                margin-top: 0;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-              "
-            >
-              <span style="font-weight: normal; color: var(--text-muted)"
-                >Languages:</span
-              >
-              <span
-                style="
-                  background: var(--paper);
-                  padding: 0.2rem 0.5rem;
-                  border-radius: var(--radius);
-                  border: 1px solid var(--line);
-                "
-              >
-                {{ skill.sub_skills }}
-              </span>
-            </p>
-            {% endif %}
-          </div>
-        </article>
-        {% empty %}
-        <p class="empty-state">No skills have been added yet.</p>
-        {% endfor %}
+      <!-- LOADING STATE (NUNGGU AJAX AMBIL DATA) -->
+      <div id="loading" class="empty-state hide">
+        <p>Loading skills...</p>
       </div>
+
+      <div id="error" class="empty-state hide">
+        <p>Failed to load skills. Please try again.</p>
+      </div>
+
+      <div id="empty" class="empty-state hide">
+        <p>No skills have been added.</p>
+      </div>
+
+      <!-- "WADAH KOSONG" yg langsung ditampilin sambil nunggu django load data -->
+      <div id="grid" class="experience-grid hide" style="display: flex; flex-direction: column; gap: 1rem">
+         <!-- Nanti kode HTML <article> dari JavaScript akan disuntikkan secara dinamis ke dalam sini -->
+      </div>
+
+
     </div>
   </section>
 </main>
+
+<script>
+  // 1. Konfigurasi Endpoint & State
+  const BASE_SKILLS_ENDPOINT = "{% url 'main:get_skills_json' %}";
+  const IS_SUPERUSER = "{{ user.is_superuser|yesno:true,false }}" === "true";
+  let skillsAbortController;
+
+  // 2. Mengambil Elemen DOM
+  const loadingState = document.getElementById('loading');
+  const errorState = document.getElementById('error');
+  const emptyState = document.getElementById('empty');
+  const gridContainer = document.getElementById('grid');
+  const searchForm = document.getElementById('skill-search-form');
+  const searchInput = document.getElementById('search-input');
+
+  // 3. Fungsi untuk mengatur section mana yang tampil
+  function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+    loadingState.classList.toggle('hide', !showLoading);
+    errorState.classList.toggle('hide', !showError);
+    emptyState.classList.toggle('hide', !showEmpty);
+    gridContainer.classList.toggle('hide', !showGrid);
+  }
+
+  // 4. Fungsi untuk merakit HTML Kartu Skill dari data JSON
+  function buildSkillCardElement(item) {
+    const skill = item.fields;
+    const skillId = item.pk;
+
+    // Membuat wadah utama <article> persis seperti desainmu
+    const articleElement = document.createElement('article');
+    articleElement.className = 'experience-card';
+    articleElement.style.display = 'flex';
+    articleElement.style.alignItems = 'center';
+    articleElement.style.gap = '2rem';
+
+    // Membuat URL dinamis dengan UUID dummy yang direplace ID asli
+    const deleteUrl = "{% url 'main:delete_skill' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', skillId);
+    const starUrl = "{% url 'main:toggle_star' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', skillId);
+
+    // --- BAGIAN A: Aksi (Star & Delete) ---
+    const isStarredClass = skill.is_starred ? " is-starred" : "";
+    const starText = skill.is_starred ? "Unstar" : "Star";
+    const starTitle = skill.star_count > 0 ? `Dibintangi oleh ${skill.starred_by_names}` : "Jadilah yang pertama memberi star";
+
+    const starHtml = `
+      <form method="post" action="${starUrl}" class="star-form" style="margin-bottom: 0.5rem;">
+        {% csrf_token %}
+        <button type="submit" class="button button-star${isStarredClass}" title="${starTitle}">
+          <span aria-hidden="true">★</span>
+          ${starText} <span class="star-count">${skill.star_count}</span>
+        </button>
+      </form>
+    `;
+
+    const deleteHtml = IS_SUPERUSER ? `
+      <form method="post" action="${deleteUrl}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="button button-danger" onclick="return confirm('Yakin ingin menghapus skill ini?');">Hapus</button>
+      </form>
+    ` : '';
+
+    const actionsHtml = `
+      <div class="skill-card-actions">
+        ${starHtml}
+        ${deleteHtml}
+      </div>
+    `;
+
+    // --- BAGIAN B: Logo Image ---
+    const logoSrc = skill.tool_logo_url ? skill.tool_logo_url : "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg";
+    const logoHtml = `
+      <div style="flex-shrink: 0; width: 120px; display: flex; justify-content: center;">
+        <img src="${logoSrc}" alt="${skill.tool_name} Logo" style="width: 100%; height: auto; filter: brightness(0.8); -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 100%); mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 100%);" />
+      </div>
+    `;
+
+    // --- BAGIAN C: Konten Teks ---
+    const subSkillsHtml = (skill.sub_skills && skill.sub_skills.trim() !== "none" && skill.sub_skills.trim() !== "") ? `
+      <p class="experience-status" style="margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-weight: normal; color: var(--text-muted)">Languages:</span>
+        <span style="background: var(--paper); padding: 0.2rem 0.5rem; border-radius: var(--radius); border: 1px solid var(--line);">
+          ${skill.sub_skills}
+        </span>
+      </p>
+    ` : '';
+
+    const contentHtml = `
+      <div style="flex-grow: 1">
+        <span class="experience-category" style="display: block; margin-bottom: 0.25rem">${skill.category_title}</span>
+        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: bold; color: var(--ink);">${skill.tool_name}</h2>
+        <p class="experience-description" style="margin-bottom: 1rem">${skill.description}</p>
+        ${subSkillsHtml}
+      </div>
+    `;
+
+    // Menggabungkan semua bagian ke dalam artikel
+    articleElement.innerHTML = actionsHtml + logoHtml + contentHtml;
+    
+    return articleElement;
+  }
+
+  // 5. Fungsi Utama Fetch AJAX
+  async function fetchSkills(searchQuery = "") {
+    // Batalkan request lama jika user mengetik/mencari dengan cepat beruntun
+    if (skillsAbortController) skillsAbortController.abort();
+    skillsAbortController = new AbortController();
+
+    try {
+      displayPageSection({ showLoading: true });
+      
+      const url = searchQuery 
+        ? `${BASE_SKILLS_ENDPOINT}?tool=${encodeURIComponent(searchQuery)}` 
+        : BASE_SKILLS_ENDPOINT;
+
+      const response = await fetch(url, {
+        headers: { 'Accept': 'application/json' },
+        signal: skillsAbortController.signal,
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch data');
+
+      const skillData = await response.json();
+
+      if (skillData.length === 0) {
+        displayPageSection({ showEmpty: true });
+      } else {
+        gridContainer.innerHTML = ''; // Bersihkan wadah sebelum diisi baru
+        skillData.forEach(item => {
+          gridContainer.appendChild(buildSkillCardElement(item));
+        });
+        displayPageSection({ showGrid: true });
+      }
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      console.error('Error loading skills:', error);
+      displayPageSection({ showError: true });
+    }
+  }
+
+  // 6. Event Handlers
+  searchForm.addEventListener('submit', function(e) {
+    e.preventDefault(); // Mencegah browser melakukan reload halaman
+    fetchSkills(searchInput.value.trim()); // Memanggil AJAX
+  });
+
+  // 7. Jalankan Fetch pertama kali saat halaman dimuat
+  fetchSkills(searchInput.value.trim());
+</script>
+
 {% endblock content %}

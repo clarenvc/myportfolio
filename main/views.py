@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.core import serializers
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -43,16 +43,14 @@ def show_experience(request):
 # SKILLS ===========================================================
 
 def show_skills(request):
-    json_response = get_skills_json(request)
-    deserialized_skills = serializers.deserialize("json", json_response.content.decode("utf-8"))
-    skills = [skill.object for skill in deserialized_skills]
+    tool_query = request.GET.get("tool", "").strip()
     
     context = {
-        'name': 'Karen Lim',
-        'nickname': 'Karen',
-        'skills': skills,
+        "nickname": "Karen",
+        "tool_query": tool_query,
+        # Variabel 'skills' diurus JavaScript
     }
-    return render(request, 'skills.html', context)
+    return render(request, "skills.html", context)
 
 @login_required(login_url="/login/")
 def create_skill(request):
@@ -75,13 +73,36 @@ def create_skill(request):
 
 def get_skills_json(request):
     tool_query = request.GET.get("tool", "").strip()
-    skills = Skill.objects.all()
+    
+    skills = Skill.objects.prefetch_related('starred_by').all()
     
     if tool_query:
         skills = skills.filter(tool_name__icontains=tool_query)
 
-    skills_json = serializers.serialize("json", skills, use_natural_foreign_keys=True)
-    return HttpResponse(skills_json, content_type="application/json")
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for skill in skills:
+        starred_users = skill.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(skill.id),
+            "fields": {
+                "tool_name": skill.tool_name,
+                "category_title": skill.category_title,
+                "description": skill.description,
+                "tool_logo_url": skill.tool_logo_url,
+                "sub_skills": skill.sub_skills,
+                
+                # Masukkan data logika Star ke dalam JSON
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+        
+    return JsonResponse(data, safe=False)
 
 @login_required(login_url="/login/")
 def delete_skill(request, skill_id):
