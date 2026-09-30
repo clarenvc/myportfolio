@@ -6,6 +6,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied 
+from django.views.decorators.http import require_POST
 
 from main.models import Experience, Skill, Education
 from main.forms import SkillForm, EducationForm
@@ -48,6 +49,7 @@ def show_skills(request):
     context = {
         "nickname": "Karen",
         "tool_query": tool_query,
+        "form": SkillForm(),
         # Variabel 'skills' diurus JavaScript
     }
     return render(request, "skills.html", context)
@@ -129,6 +131,27 @@ def toggle_star_skill(request, skill_id):
             skill.starred_by.add(request.user)
 
     return redirect("main:show_skills")
+
+def create_skill_ajax(request):
+    # Pengecekan keamanan: hanya superuser yang bisa menambah skill
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan skill."},
+            status=403,
+        )
+        
+    # Memasukkan data POST ke dalam form Django
+    form = SkillForm(request.POST)
+    
+    if form.is_valid():
+        skill = form.save()
+        return JsonResponse(
+            {"message": "Skill berhasil ditambahkan.", "pk": str(skill.id)},
+            status=201,
+        )
+        
+    # Jika form tidak valid (misal ada field yang kurang), kirim pesan error
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
 
 # EDUCATION ===========================================================
 

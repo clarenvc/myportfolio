@@ -1,11 +1,25 @@
-{% extends "base.html" %} {% load static %} {% block meta %}
+{% extends "base.html" %} 
+{% load static %} 
+
+{% block meta %}
 <title>{{ nickname }}'s - Skills</title>
-{% endblock meta %} {% block content %}
+{% endblock meta %} 
+
+{% block content %}
 <main>
   <section class="experience-section" id="skills">
     <div class="container">
       <p class="section-kicker">What I do and What I Use</p>
-      <h1 style="margin-bottom: 2rem">Skills</h1>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin: 0">Skills</h1>
+
+        <!-- Nampilin tombol add skill for superuser-->
+        {% if user.is_superuser %}
+        <button popovertarget="add-skill-modal" class="button skill-add-button">
+          <span aria-hidden="true">+</span> Add Skill
+        </button>
+        {% endif %}
+      </div>
 
       <!-- FORM PENCARIAN (AJAX) -->
       <form id="skill-search-form" class="skill-search" style="margin-bottom: 2rem">
@@ -24,13 +38,8 @@
       <!-- TEST NOTIFIKASI TOAST -->
       <button
         class="button button-secondary"
-        onclick="
-          showToast(
-            'System notification!',
-            'Skill has been added succesfully!',
-            'success',
-          )
-        "
+        style="margin-bottom: 1.5rem;"
+        onclick="showToast('System notification!', 'Skill has been added succesfully!', 'success')"
       >
         Test Toast Notifikasi
       </button>
@@ -50,36 +59,39 @@
 
       <!-- "WADAH KOSONG" yg langsung ditampilin sambil nunggu django load data -->
       <div id="grid" class="experience-grid hide" style="display: flex; flex-direction: column; gap: 1rem">
-         <!-- Nanti kode HTML <article> dari JavaScript akan disuntikkan secara dinamis ke dalam sini -->
+        <!-- Nanti kode HTML <article> dari JavaScript akan disuntikkan secara dinamis ke dalam sini -->
       </div>
-
-
     </div>
   </section>
 </main>
 
+<!--  Tampilin create skill form khusus superuser (DIRAPIKAN) -->
+{% if user.is_superuser %} 
+  {% include "components/skill_form_modal.html" %} 
+{% endif %}
+
 <script>
   // 1. Konfigurasi Endpoint & State
   const BASE_SKILLS_ENDPOINT = "{% url 'main:get_skills_json' %}";
-  const IS_SUPERUSER = "{{ user.is_superuser|yesno:true,false }}" === "true";
+  const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
   let skillsAbortController;
 
   // 2. Mengambil Elemen DOM
-  const loadingState = document.getElementById('loading');
-  const errorState = document.getElementById('error');
-  const emptyState = document.getElementById('empty');
-  const gridContainer = document.getElementById('grid');
-  const searchForm = document.getElementById('skill-search-form');
-  const searchInput = document.getElementById('search-input');
+  const loadingState = document.getElementById("loading");
+  const errorState = document.getElementById("error");
+  const emptyState = document.getElementById("empty");
+  const gridContainer = document.getElementById("grid");
+  const searchForm = document.getElementById("skill-search-form");
+  const searchInput = document.getElementById("search-input");
   const SEARCH_DEBOUNCE_DELAY = 300;
   let searchDebounceTimer;
 
   // 3. Fungsi untuk mengatur section mana yang tampil
   function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
-    loadingState.classList.toggle('hide', !showLoading);
-    errorState.classList.toggle('hide', !showError);
-    emptyState.classList.toggle('hide', !showEmpty);
-    gridContainer.classList.toggle('hide', !showGrid);
+    loadingState.classList.toggle("hide", !showLoading);
+    errorState.classList.toggle("hide", !showError);
+    emptyState.classList.toggle("hide", !showEmpty);
+    gridContainer.classList.toggle("hide", !showGrid);
   }
 
   // 4. Fungsi untuk merakit HTML Kartu Skill dari data JSON
@@ -87,18 +99,15 @@
     const skill = item.fields;
     const skillId = item.pk;
 
-    // Membuat wadah utama <article> persis seperti desainmu
-    const articleElement = document.createElement('article');
-    articleElement.className = 'experience-card';
-    articleElement.style.display = 'flex';
-    articleElement.style.alignItems = 'center';
-    articleElement.style.gap = '2rem';
+    const articleElement = document.createElement("article");
+    articleElement.className = "experience-card";
+    articleElement.style.display = "flex";
+    articleElement.style.alignItems = "center";
+    articleElement.style.gap = "2rem";
 
-    // Membuat URL dinamis dengan UUID dummy yang direplace ID asli
-    const deleteUrl = "{% url 'main:delete_skill' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', skillId);
-    const starUrl = "{% url 'main:toggle_star' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', skillId);
+    const deleteUrl = "{% url 'main:delete_skill' '00000000-0000-0000-0000-000000000000' %}".replace("00000000-0000-0000-0000-000000000000", skillId);
+    const starUrl = "{% url 'main:toggle_star_skill' '00000000-0000-0000-0000-000000000000' %}".replace("00000000-0000-0000-0000-000000000000", skillId);
 
-    // --- BAGIAN A: Aksi (Star & Delete) ---
     const isStarredClass = skill.is_starred ? " is-starred" : "";
     const starText = skill.is_starred ? "Unstar" : "Star";
     const starTitle = skill.star_count > 0 ? `Dibintangi oleh ${skill.starred_by_names}` : "Jadilah yang pertama memberi star";
@@ -118,7 +127,7 @@
         {% csrf_token %}
         <button type="submit" class="button button-danger" onclick="return confirm('Yakin ingin menghapus skill ini?');">Hapus</button>
       </form>
-    ` : '';
+    ` : "";
 
     const actionsHtml = `
       <div class="skill-card-actions">
@@ -127,7 +136,6 @@
       </div>
     `;
 
-    // --- BAGIAN B: Logo Image ---
     const logoSrc = skill.tool_logo_url ? skill.tool_logo_url : "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg";
     const logoHtml = `
       <div style="flex-shrink: 0; width: 120px; display: flex; justify-content: center;">
@@ -135,15 +143,14 @@
       </div>
     `;
 
-    // --- BAGIAN C: Konten Teks ---
-    const subSkillsHtml = (skill.sub_skills && skill.sub_skills.trim() !== "none" && skill.sub_skills.trim() !== "") ? `
+    const subSkillsHtml = skill.sub_skills && skill.sub_skills.trim() !== "none" && skill.sub_skills.trim() !== "" ? `
       <p class="experience-status" style="margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
         <span style="font-weight: normal; color: var(--text-muted)">Languages:</span>
         <span style="background: var(--paper); padding: 0.2rem 0.5rem; border-radius: var(--radius); border: 1px solid var(--line);">
           ${skill.sub_skills}
         </span>
       </p>
-    ` : '';
+    ` : "";
 
     const contentHtml = `
       <div style="flex-grow: 1">
@@ -154,65 +161,121 @@
       </div>
     `;
 
-    // Menggabungkan semua bagian ke dalam artikel
     articleElement.innerHTML = actionsHtml + logoHtml + contentHtml;
-    
     return articleElement;
   }
 
   // 5. Fungsi Utama Fetch AJAX
   async function fetchSkills(searchQuery = "") {
-    // Batalkan request lama jika user mengetik/mencari dengan cepat beruntun
     if (skillsAbortController) skillsAbortController.abort();
     skillsAbortController = new AbortController();
 
     try {
       displayPageSection({ showLoading: true });
-      
-      const url = searchQuery 
-        ? `${BASE_SKILLS_ENDPOINT}?tool=${encodeURIComponent(searchQuery)}` 
-        : BASE_SKILLS_ENDPOINT;
-
+      const url = searchQuery ? `${BASE_SKILLS_ENDPOINT}?tool=${encodeURIComponent(searchQuery)}` : BASE_SKILLS_ENDPOINT;
       const response = await fetch(url, {
-        headers: { 'Accept': 'application/json' },
+        headers: { Accept: "application/json" },
         signal: skillsAbortController.signal,
       });
 
-      if (!response.ok) throw new Error('Failed to fetch data');
+      if (!response.ok) throw new Error("Failed to fetch data");
 
       const skillData = await response.json();
 
       if (skillData.length === 0) {
         displayPageSection({ showEmpty: true });
       } else {
-        gridContainer.innerHTML = ''; // Bersihkan wadah sebelum diisi baru
-        skillData.forEach(item => {
+        gridContainer.innerHTML = ""; 
+        skillData.forEach((item) => {
           gridContainer.appendChild(buildSkillCardElement(item));
         });
         displayPageSection({ showGrid: true });
       }
     } catch (error) {
-      if (error.name === 'AbortError') return;
-      console.error('Error loading skills:', error);
+      if (error.name === "AbortError") return;
+      console.error("Error loading skills:", error);
       displayPageSection({ showError: true });
     }
   }
 
-  // 6. Event Handlers
+  // 6. Event Handlers & Search
   function searchSkills() {
     fetchSkills(searchInput.value.trim());
   }
 
-  // Event saat pengguna sedang mengetik (otomatis mencari tanpa tekan Enter)
-  searchInput.addEventListener("input", function() {
+  searchInput.addEventListener("input", function () {
     clearTimeout(searchDebounceTimer);
-    searchDebounceTimer = setTimeout(function() {
+    searchDebounceTimer = setTimeout(function () {
       searchSkills();
     }, SEARCH_DEBOUNCE_DELAY);
   });
 
+  searchForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    clearTimeout(searchDebounceTimer);
+    searchSkills();
+  });
+
+  // --- LOGIKA FORM MODAL AJAX DIRAPIKAN ---
+  function closeSkillModal() {
+    document.getElementById("add-skill-modal").hidePopover();
+  }
+
+  const CREATE_SKILL_ENDPOINT = "{% url 'main:create_skill_ajax' %}";
+  const skillForm = document.getElementById('skill-form');
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  async function addSkill(event) {
+    event.preventDefault();
+    const submitButton = skillForm.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+
+    try {
+      const response = await fetch(CREATE_SKILL_ENDPOINT, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        body: new FormData(skillForm),
+      });
+      const result = await response.json().catch(() => ({}));
+
+      if (response.ok) {
+        skillForm.reset();
+        closeSkillModal(); 
+        showToast('System notification', 'New skill added!', 'success');
+        fetchSkills(searchInput.value.trim()); 
+      } else {
+        const errorMessages = result.errors
+          ? [...new Set(Object.values(result.errors).flat().map(error => error.message))]
+          : [result.message || `Terjadi kesalahan (status ${response.status}).`];
+        showToast('Failed to add skill', errorMessages.join(' '), 'error');
+      }
+    } catch (error) {
+      console.error('Error adding skill:', error);
+      showToast('Failed to add skill', 'Server not connected', 'error');
+    } finally {
+      submitButton.disabled = false; 
+    }
+  }
+
+  if (skillForm) {
+    skillForm.addEventListener('submit', addSkill);
+  }
+
   // 7. Jalankan Fetch pertama kali saat halaman dimuat
   fetchSkills(searchInput.value.trim());
 </script>
-
 {% endblock content %}
