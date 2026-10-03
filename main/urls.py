@@ -4,7 +4,7 @@ from main.views import (
     show_main, show_experience, 
     show_skills, create_skill, get_skills_json, delete_skill, 
     show_education, get_education_json, create_education, edit_education, delete_education,
-    register, login_user, logout_user, toggle_star_skill, toggle_star_education, create_skill_ajax,
+    register, login_user, logout_user, toggle_star_skill, toggle_star_education, create_skill_ajax, get_experience_json,
 )
 
 app_name = "main"
@@ -16,6 +16,7 @@ urlpatterns = [
 
 # EXPERIENCE
     path("experience/", show_experience, name="show_experience"),
+    path("api/experience/", get_experience_json, name="get_experience_json"),
 
 # SKILLS
     path("skills/", show_skills, name="show_skills"),
@@ -31,7 +32,7 @@ urlpatterns = [
     path("education/add/", create_education, name="create_education"),
     path("education/edit/<uuid:id>/", edit_education, name="edit_education"),
     path("education/delete/<uuid:id>/", delete_education, name="delete_education"),
-    path("skills/<uuid:id>/star/", toggle_star_education, name="toggle_star_education"),
+    path("education/<uuid:id>/star/", toggle_star_education, name="toggle_star_education"),
 
 # USER
     path("register/", register, name="register"),

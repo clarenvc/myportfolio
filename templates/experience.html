@@ -1,37 +1,115 @@
-{% extends "base.html" %} 
-{% load static %} 
-
-{% block meta %}
+{% extends "base.html" %} {% load static %} {% block meta %}
 <title>{{ nickname }}'s - Experience</title>
-{% endblock meta %} 
-
-{% block content %}
+{% endblock meta %} {% block content %}
 <main>
   <section class="experience-section" id="experience">
     <div class="container">
       <p class="section-kicker">My journey in University so far</p>
       <h1>Experience</h1>
 
-      <div class="experience-grid">
-        {% for experience in experience_list %}
-        <article class="experience-card">
-          <span class="experience-category">
-            {{ experience.get_category_display }}
-          </span>
-          <h2>{{ experience.title }}</h2>
-          <p class="experience-description">{{ experience.description }}</p>
+      <!-- FORM PENCARIAN (AJAX) -->
+      <form id="exp-search-form" class="skill-search" style="margin-bottom: 2rem">
+        <input type="search" id="exp-search-input" placeholder="Search for experience..." class="skill-search__input" />
+      </form>
 
-          {% if experience.is_ongoing %}
-          <p class="experience-status">Ongoing</p>
-          {% else %}
-          <p class="experience-status">Completed</p>
-          {% endif %}
-        </article>
-        {% empty %}
-        <p class="empty-state">No experience has been added yet.</p>
-        {% endfor %}
+      <!-- STATE CONTAINERS (LOADING, ERROR, EMPTY) -->
+      <div id="loading" class="empty-state hide">
+        <p>Loading experiences...</p>
+      </div>
+
+      <div id="error" class="empty-state hide">
+        <p>Failed to load experiences. Please try again.</p>
+      </div>
+
+      <div id="empty" class="empty-state hide">
+        <p>No experience has been added yet.</p>
+      </div>
+
+      <!-- WADAH GRID UNTUK AJAX -->
+      <div id="experience-grid" class="experience-grid hide">
+        <!-- Kartu HTML akan disuntikkan oleh JavaScript ke sini -->
       </div>
     </div>
   </section>
 </main>
+
+<script>
+  const BASE_EXP_ENDPOINT = "{% url 'main:get_experience_json' %}";
+  const loadingState = document.getElementById("loading");
+  const errorState = document.getElementById("error");
+  const emptyState = document.getElementById("empty");
+  const gridContainer = document.getElementById("experience-grid");
+  
+  // Variabel Pencarian & Debounce
+  const searchInput = document.getElementById("exp-search-input");
+  const searchForm = document.getElementById("exp-search-form");
+  let debounceTimer;
+  let expAbortController;
+
+  function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+
+  function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+    loadingState.classList.toggle("hide", !showLoading);
+    errorState.classList.toggle("hide", !showError);
+    emptyState.classList.toggle("hide", !showEmpty);
+    gridContainer.classList.toggle("hide", !showGrid);
+  }
+
+  function buildExperienceCardElement(item) {
+    const exp = item.fields;
+    const articleElement = document.createElement("article");
+    articleElement.className = "experience-card";
+    const statusText = exp.is_ongoing ? "Ongoing" : "Completed";
+
+    articleElement.innerHTML = `
+      <span class="experience-category">${escapeHtml(exp.category_display)}</span>
+      <h2>${escapeHtml(exp.title)}</h2>
+      <p class="experience-description">${escapeHtml(exp.description)}</p>
+      <p class="experience-status">${statusText}</p>
+    `;
+    return articleElement;
+  }
+
+  async function fetchExperiences(searchQuery = "") {
+    if (expAbortController) expAbortController.abort();
+    expAbortController = new AbortController();
+
+    try {
+      displayPageSection({ showLoading: true });
+      const url = searchQuery ? `${BASE_EXP_ENDPOINT}?q=${encodeURIComponent(searchQuery)}` : BASE_EXP_ENDPOINT;
+      
+      const response = await fetch(url, { headers: { Accept: "application/json" }, signal: expAbortController.signal });
+      if (!response.ok) throw new Error("Gagal mengambil data");
+      const data = await response.json();
+
+      if (data.length === 0) {
+        displayPageSection({ showEmpty: true });
+      } else {
+        gridContainer.innerHTML = ""; 
+        data.forEach((item) => gridContainer.appendChild(buildExperienceCardElement(item)));
+        displayPageSection({ showGrid: true });
+      }
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      displayPageSection({ showError: true });
+    }
+  }
+
+  // Event Listeners Debouncing
+  searchInput.addEventListener("input", function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => fetchExperiences(searchInput.value.trim()), 300);
+  });
+
+  searchForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    clearTimeout(debounceTimer);
+    fetchExperiences(searchInput.value.trim());
+  });
+
+  fetchExperiences();
+</script>
 {% endblock content %}
