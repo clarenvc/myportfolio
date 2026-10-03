@@ -1,130 +1,135 @@
-{% extends "base.html" %} {% load static %} {% block meta %}
+{% extends "base.html" %} 
+{% load static %} 
+
+{% block meta %}
 <title>{{ nickname }}'s - Education</title>
-{% endblock meta %} {% block content %}
+{% endblock meta %} 
+
+{% block content %}
 <main>
   <section class="my-education">
     <div class="container">
-      <div
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-        "
-      >
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h2>Education History</h2>
         <!-- Tombol Tambah Data -->
         {% if user.is_superuser %}
-          <a
-            href="{% url 'main:create_education' %}"
-            style="
-              background: var(--accent);
-              color: white;
-              padding: 0.5rem 1rem;
-              text-decoration: none;
-              border-radius: var(--radius);
-              font-weight: bold;
-              font-family: &quot;Times New Roman&quot;, serif;
-            "
-          >
+          <a href="{% url 'main:create_education' %}" style="background: var(--accent); color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: var(--radius); font-weight: bold; font-family: 'Times New Roman', serif;">
             + Add Education
           </a>
         {% endif %}
       </div>
 
-      <div class="education-container">
-        {% for edu in educations %}
-        <div class="edu-card">
-          <span class="edu-year"
-            >{{ edu.start_year }} — {{ edu.end_year }}</span
-          >
-          <h3 class="edu-school">{{ edu.school_name }}</h3>
-          <p class="edu-desc">{{ edu.description }}</p>
+      <!-- FORM PENCARIAN (AJAX) -->
+      <form id="edu-search-form" class="skill-search" style="margin-bottom: 2rem">
+        <input type="search" id="edu-search-input" placeholder="Search for school/instituion name..." class="skill-search__input" />
+      </form>
 
-          <div
-          style="
-              margin-top: 1.5rem;
-              display: flex;
-              gap: 0.5rem;
-              justify-content: flex-end;
-              align-items: center;
-              "
-          >
+      <!-- STATE CONTAINERS (LOADING, ERROR, EMPTY) -->
+      <div id="loading" class="empty-state hide">
+        <p>Loading education history...</p>
+      </div>
 
-            <!-- Tombol Star -->
-            <form method="POST" action="{% url 'main:toggle_star_education' edu.id %}" class="star-form" style="margin-right: auto; margin-bottom: 0;">
-                {% csrf_token %}
-                <!-- Class 'is-starred' akan aktif kalau user sudah like -->
-                <button type="submit" class="button-star {% if user in edu.starred_by.all %}is-starred{% endif %}" style="border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); cursor: pointer; font-family: 'Times New Roman', serif;">
-                    {% if user in edu.starred_by.all %}
-                        ⭐
-                    {% else %}
-                        ☆
-                    {% endif %}
-                    <span class="star-count">{{ edu.starred_by.count }}</span>
-                </button>
-            </form>
+      <div id="error" class="empty-state hide">
+        <p>Failed to load education history. Please try again.</p>
+      </div>
 
-            <!-- Tombol Edit -->
-            {% if user.is_superuser or is_editor %}
-              <a
-                href="{% url 'main:edit_education' edu.id %}"
-                style="
-                  height: 36px;
-                  display: inline-flex;
-                  align-items: center;
-                  justify-content: center;
-                  box-sizing: border-box;
-                  background: var(--text-muted);
-                  color: white;
-                  padding: 0 1rem;
-                  text-decoration: none;
-                  border-radius: var(--radius);
-                  font-size: 0.9rem;
-                  font-family: &quot;Times New Roman&quot;, serif;
-                "
-              >
-                Edit
-              </a>
-            {% endif %}
+      <div id="empty" class="empty-state hide">
+        <p>No education history have been added.</p>
+      </div>
 
-          <!-- Tombol Edit -->
-            {% if user.is_superuser %}
-              <form
-                method="post"
-                action="{% url 'main:delete_education' edu.id %}"
-                style="margin: 0; display: flex; height: 36px"
-              >
-                {% csrf_token %}
-                <button
-                  type="submit"
-                  style="
-                    height: 100%;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-sizing: border-box;
-                    background: #b42318;
-                    color: white;
-                    border: none;
-                    padding: 0 1rem;
-                    border-radius: var(--radius);
-                    font-size: 0.9rem;
-                    cursor: pointer;
-                    font-family: &quot;Times New Roman&quot;, serif;
-                  "
-                >
-                  Delete
-                </button>
-              </form>
-            {% endif %}
-          </div>
-        </div>
-        {% empty %}
-        <p class="empty-state">No education history have been added.</p>
-        {% endfor %}
+      <!-- WADAH GRID UNTUK AJAX -->
+      <div id="education-grid" class="education-container hide">
+        <!-- Kartu HTML akan disuntikkan oleh JavaScript ke sini -->
       </div>
     </div>
   </section>
 </main>
+
+<script>
+  const BASE_EDU_ENDPOINT = "{% url 'main:get_education_json' %}";
+  const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+  const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
+  
+  const loadingState = document.getElementById("loading");
+  const errorState = document.getElementById("error");
+  const emptyState = document.getElementById("empty");
+  const gridContainer = document.getElementById("education-grid");
+  
+  // Variabel Pencarian & Debounce
+  const searchInput = document.getElementById("edu-search-input");
+  const searchForm = document.getElementById("edu-search-form");
+  let debounceTimer;
+  let eduAbortController;
+
+  function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+
+  function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+    loadingState.classList.toggle("hide", !showLoading);
+    errorState.classList.toggle("hide", !showError);
+    emptyState.classList.toggle("hide", !showEmpty);
+    gridContainer.classList.toggle("hide", !showGrid);
+  }
+
+  function buildEducationCardElement(item) {
+    const edu = item.fields;
+    const eduId = item.pk;
+    const divElement = document.createElement("div");
+    divElement.className = "edu-card";
+
+    const starUrl = "{% url 'main:toggle_star_education' '00000000-0000-0000-0000-000000000000' %}".replace("00000000-0000-0000-0000-000000000000", eduId);
+    const editUrl = "{% url 'main:edit_education' '00000000-0000-0000-0000-000000000000' %}".replace("00000000-0000-0000-0000-000000000000", eduId);
+    const deleteUrl = "{% url 'main:delete_education' '00000000-0000-0000-0000-000000000000' %}".replace("00000000-0000-0000-0000-000000000000", eduId);
+
+    const starIcon = edu.is_starred ? "⭐" : "☆";
+    const starClass = edu.is_starred ? "is-starred" : "";
+    const starHtml = `<form method="POST" action="${starUrl}" class="star-form" style="margin-right: auto; margin-bottom: 0;">{% csrf_token %}<button type="submit" class="button-star ${starClass}" style="border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); cursor: pointer; font-family: 'Times New Roman', serif;">${starIcon} <span class="star-count">${edu.star_count}</span></button></form>`;
+    const editHtml = (IS_SUPERUSER || IS_EDITOR) ? `<a href="${editUrl}" style="height: 36px; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; background: var(--text-muted); color: white; padding: 0 1rem; text-decoration: none; border-radius: var(--radius); font-size: 0.9rem; font-family: 'Times New Roman', serif;">Edit</a>` : "";
+    const deleteHtml = IS_SUPERUSER ? `<form method="post" action="${deleteUrl}" style="margin: 0; display: flex; height: 36px">{% csrf_token %}<button type="submit" style="height: 100%; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; background: #b42318; color: white; border: none; padding: 0 1rem; border-radius: var(--radius); font-size: 0.9rem; cursor: pointer; font-family: 'Times New Roman', serif;">Delete</button></form>` : "";
+
+    divElement.innerHTML = `<span class="edu-year">${escapeHtml(edu.start_year)} — ${escapeHtml(edu.end_year)}</span><h3 class="edu-school">${escapeHtml(edu.school_name)}</h3><p class="edu-desc">${escapeHtml(edu.description)}</p><div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">${starHtml}${editHtml}${deleteHtml}</div>`;
+    return divElement;
+  }
+
+  async function fetchEducations(searchQuery = "") {
+    if (eduAbortController) eduAbortController.abort();
+    eduAbortController = new AbortController();
+
+    try {
+      displayPageSection({ showLoading: true });
+      const url = searchQuery ? `${BASE_EDU_ENDPOINT}?q=${encodeURIComponent(searchQuery)}` : BASE_EDU_ENDPOINT;
+      
+      const response = await fetch(url, { headers: { Accept: "application/json" }, signal: eduAbortController.signal });
+      if (!response.ok) throw new Error("Gagal mengambil data");
+      const data = await response.json();
+
+      if (data.length === 0) {
+        displayPageSection({ showEmpty: true });
+      } else {
+        gridContainer.innerHTML = ""; 
+        data.forEach((item) => gridContainer.appendChild(buildEducationCardElement(item)));
+        displayPageSection({ showGrid: true });
+      }
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      displayPageSection({ showError: true });
+    }
+  }
+
+  // Event Listeners Debouncing
+  searchInput.addEventListener("input", function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => fetchEducations(searchInput.value.trim()), 300);
+  });
+
+  searchForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    clearTimeout(debounceTimer);
+    fetchEducations(searchInput.value.trim());
+  });
+
+  fetchEducations();
+</script>
 {% endblock content %}

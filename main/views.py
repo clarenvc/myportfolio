@@ -37,9 +37,30 @@ def show_experience(request):
     context = {
         "name": "Karen Lim",
         "nickname": "Karen",
-        "experience_list": Experience.objects.all(),
     }
     return render(request, "experience.html", context)
+
+def get_experience_json(request):
+    q = request.GET.get("q", "").strip()
+    experiences = Experience.objects.all()
+
+    if q:
+        experiences = experiences.filter(title__icontains=q)
+    
+    data = []
+    for exp in experiences:
+        data.append({
+            "pk": str(exp.id),
+            "fields": {
+                "title": exp.title,
+                "description": exp.description,
+                "is_ongoing": exp.is_ongoing,
+                # Mengambil teks display dari field choices (misal: "Organisasi", "Kepanitiaan")
+                "category_display": exp.get_category_display(), 
+            }
+        })
+        
+    return JsonResponse(data, safe=False)
 
 # SKILLS ===========================================================
 
@@ -156,21 +177,40 @@ def create_skill_ajax(request):
 # EDUCATION ===========================================================
 
 def get_education_json(request):
-    educations = Education.objects.all()
-    educations_json = serializers.serialize("json", educations)
-    return HttpResponse(educations_json, content_type="application/json")
+    q = request.GET.get("q", "").strip()
+    educations = Education.objects.prefetch_related('starred_by').all()
+    
+    if q:
+        educations = educations.filter(school_name__icontains=q)
+    
+    data = []
+    for edu in educations:
+        starred_users = edu.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+
+        data.append({
+            "pk": str(edu.id),
+            "fields": {
+                "school_name": edu.school_name,
+                "start_year": edu.start_year,
+                "end_year": edu.end_year,
+                "description": edu.description,
+                
+                # Informasi Star
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+            }
+        })
+        
+    return JsonResponse(data, safe=False)
 
 
 def show_education(request):
-    json_response = get_education_json(request)
-    educations_deserialized = serializers.deserialize("json", json_response.content.decode("utf-8"))
-    educations = [edu.object for edu in educations_deserialized]
-    
     context = {
         "name": "Karen Lim", 
         "nickname": "Karen",
-        "educations": educations,
-         "is_editor": is_editor(request.user), #buat nti cek is_editor or no, klo bener ya dia return exists()
+        # Gunakan pengecekan aman agar tidak error jika user belum login
+        "is_editor": is_editor(request.user) if request.user.is_authenticated else False, 
     }
     return render(request, "education.html", context)
 
