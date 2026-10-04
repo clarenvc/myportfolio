@@ -52,6 +52,7 @@ class SkillForm(ModelForm):
                 }
             ),
         }
+
     def clean_tool_name(self):
         tool_name = strip_tags(self.cleaned_data["tool_name"]).strip()
         if not tool_name:
@@ -90,3 +91,15 @@ class EducationForm(ModelForm):
                 attrs={"placeholder": "Brief description here...", "rows": 3, "class": "form-input"}
             ),
         }
+
+    def clean_school_name(self):
+        school_name = strip_tags(self.cleaned_data["school_name"]).strip()
+        if not school_name:
+            raise ValidationError("Nama institusi tidak boleh hanya berisi tag HTML.")
+        return school_name
+
+    def clean_end_year(self):
+        return strip_tags(self.cleaned_data["end_year"]).strip()
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()
