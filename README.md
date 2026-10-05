@@ -146,3 +146,48 @@ Terakhir, proses _serialization_ sangat dibutuhkan karena objek model/QuerySet p
 >
 > </details>
 
+---
+
+### TUGAS 5
+
+**1.** **Debouncing** adalah sebuah teknik yang sering diterapkan pada fitur pencarian AJAX untuk menunda eksekusi sebuah fungsi sampai jeda waktu tertentu berlalu sejak pengguna terakhir kali memicunya (misalnya, menunggu hingga pengguna berhenti mengetik selama 300 milidetik).
+
+=> Teknik ini sangat penting untuk diterapkan pada fitur pencarian AJAX karena mencegah browser mengirimkan _request_ HTTP ke server pada setiap huruf yang diketik (_keystroke_). Tanpa debouncing, server bisa dibombardir oleh _request_ yang berlebihan atau secara terus menerus, sehingga membebani _bandwidth_, dan berpotensi memicu _race condition_ di mana balasan pencarian dari _request_ lama datang terlambat dan menimpa hasil dari _request_ yang paling baru.
+
+**2.** Penggunaan `await` di fungsi `fetch()` berfungsi untuk menjeda eksekusi baris kode JavaScript selanjutnya secara asinkron sampai proses pengambilan data dari server selesai (mengembalikan _Promise_ yang sudah _resolved_ atau _rejected_).
+
+=> Jika kita tidak menggunakan `await`, JavaScript tidak akan menunggu respons dari server dan langsung melompat mengeksekusi baris kode di bawahnya. Akibatnya, variabel penampung `fetch()` akan diisi objek _Promise_ yang statusnya masih _pending_ (belum selesai), bukan berisi balasan data respons HTTP yang sebenarnya. Hal ini akan menyebabkan program gagal pas ingin mencoba "mem-(_parsing_)" data tersebut jadi JSON.
+
+**3.** **XSS (Cross-Site Scripting)** adalah celah keamanan di mana penyerang berhasil menyuntikkan skrip berbahaya (biasanya kode JavaScript) ke dalam sebuah aplikasi web. Skrip ini kemudian dieksekusi secara otomatis oleh browser pengguna lain yang mengakses halaman tersebut.
+
+=> Data yang ditampilkan menggunakan AJAX lebih rentan terhadap serangan XSS karena pengembang sering kali menyisipkan data JSON mentah langsung ke dalam struktur HTML (DOM) menggunakan properti seperti `innerHTML`. Jika data tersebut mengandung tag `<script>`, browser akan langsung menjalankannya. Sebaliknya, _template_ bawaan Django memiliki fitur _auto-escaping_ yang secara otomatis menerjemahkan karakter berbahaya (seperti `<` menjadi `&lt;`) sebelum dirender ke HTML. Oleh karena itu, pada AJAX, kita harus melakukan sanitasi (seperti memanggil fungsi khusus `escapeHtml()`) secara manual.
+
+---
+
+> **P.S.** Tugas 5 ini saya kerjakan dengan bantuan Gemini AI, sebagai rekan diskusi saya, asisten _debugging_ serta sebagai _buddy scripting_.
+>
+> #### 1. **Strategi Prompting & Tools.**
+>
+> - Tools yang saya gunakan adalah Gemini 1.5 Pro / Flash.
+> - **Strategi Prompting:** Menggunakan _Iterative Debugging_ (mengirimkan pesan error spesifik beserta potongan kode) serta _Deep Dive_ untuk meminta penjelasan fundamental di balik sebuah _bug_ atau aturan kode.
+>
+> #### 2. **Bagian Spesifik yang Dibantu AI**
+>
+> - **Konsep & Arsitektur:** Memahami perbedaan alur kerja dalam merakit JSON secara manual di _backend_ dengan fitur serialisasi bawaan Django, serta cara merancang arsitektur keamanan dengan dekorator Django yang bertumpuk.
+> - **Troubleshooting:** Menganalisis mengapa form pengiriman AJAX "bocor" (gagal dicegat) dan memicu _redirect_ ke halaman JSON mentah, serta melacak penyebab munculnya tumpukan _flash messages_ usang pada halaman Login.
+> - **Keamanan Frontend:** Menerapkan pengiriman token CSRF melalui _header_ HTTP dan membentengi injeksi DOM dengan fungsi _escaping_ manual di sisi JavaScript.
+>
+> #### 3. **Cuplikan Chat Log AI**
+>
+> <details>
+> <summary> Klik untuk melihat log diskusi dengan AI</summary>
+>
+> **Prompt 1 (Analisis Arsitektur Keamanan Django):**
+>
+> > _"Saya melihat ada penumpukan decorator `@require_POST` dan `@login_required` di atas satu fungsi view yang sama. Secara teknis, apa perbedaan spesifik dari peran kedua decorator ini? Apakah aman dan termasuk best practice jika kita menggabungkannya, terutama untuk endpoint AJAX yang mengekspektasikan balasan JSON alih-alih redirect halaman HTML?"_
+>
+> **Prompt 2 (Debugging Alur Asinkron & DOM):**
+>
+> > _"Saat saya menekan tombol submit pada form di dalam modal, browser saya malah berpindah memuat halaman raw JSON yang menampilkan respons dari server (`{"message": "Berhasil...", "pk": "..."}`). Padahal, logika `fetch()` dan modal popover sudah saya siapkan. Mengapa JavaScript gagal mencegat event submit ini, dan di mana letak kesalahan urutan eksekusinya?"_
+>
+> </details>
