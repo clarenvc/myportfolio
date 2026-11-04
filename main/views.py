@@ -301,7 +301,7 @@ def login_user(request):
 
     if request.method == "POST" and form.is_valid():
         user = form.get_user()
-        login(request, form.get_user())
+        login(request, user)
         response = redirect("main:show_main")
         response.set_cookie("last_login", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         return response
