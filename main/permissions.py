@@ -4,7 +4,14 @@ class IsPortfolioOwnerOrReadOnly(BasePermission):
     message = "Only the portfolio owner can change projects."
 
     def has_permission(self, request, view):
-        return (
-            request.method in SAFE_METHODS
-            or request.user.is_superuser
-        )
+        if request.method in SAFE_METHODS:
+            return True
+
+        user = request.user
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser:
+            return True
+        if request.method in ("PUT", "PATCH"):
+            return user.groups.filter(name="Editor").exists()
+        return False
