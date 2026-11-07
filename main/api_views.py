@@ -150,12 +150,11 @@ def education_star(request, education_id):
 @permission_classes([IsPortfolioOwnerOrEditorOrReadOnly])
 def experience_list(request):
     if request.method == "GET":
-        # Fitur Pencarian berdasarkan nama perusahaan (company)
-        company_query = request.query_params.get("company", "").strip()
+        title_query = request.query_params.get("q", "").strip() 
         experiences = Experience.objects.prefetch_related("starred_by").all()
         
-        if company_query:
-            experiences = experiences.filter(company__icontains=company_query)
+        if title_query:
+            experiences = experiences.filter(title__icontains=title_query)
             
         serializer = ExperienceSerializer(experiences, many=True, context={"request": request})
         return Response(serializer.data)
@@ -165,7 +164,6 @@ def experience_list(request):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 # Detail, Edit (PUT/PATCH), dan Hapus (DELETE)
 @api_view(["GET", "HEAD", "PUT", "PATCH", "DELETE"])

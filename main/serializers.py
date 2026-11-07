@@ -53,7 +53,9 @@ class ExperienceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Experience
-        fields = ["id", "company", "role", "description", "star_count", "is_starred"]
+
+        fields = ["id", "category", "title", "description", "is_ongoing", "star_count", "is_starred"]
+        read_only_fields = ["id"]  
 
     def get_star_count(self, obj):
         return obj.starred_by.count()
@@ -66,7 +68,6 @@ class ExperienceSerializer(serializers.ModelSerializer):
 
     def validate_description(self, value):
         return strip_tags(value)
-
 
 class EducationSerializer(serializers.ModelSerializer):
     star_count = serializers.SerializerMethodField()
