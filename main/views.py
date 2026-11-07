@@ -7,6 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied 
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from main.models import Experience, Skill, Education
 from main.forms import SkillForm, EducationForm
@@ -204,7 +205,7 @@ def get_education_json(request):
         
     return JsonResponse(data, safe=False)
 
-
+@ensure_csrf_cookie
 def show_education(request):
     context = {
         "name": "Karen Lim", 

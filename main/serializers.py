@@ -48,27 +48,24 @@ class SkillSerializer(serializers.ModelSerializer):
         return ", ".join(user.username for user in obj.starred_by.all())
 
 class ExperienceSerializer(serializers.ModelSerializer):
-    is_ongoing = serializers.ReadOnlyField()
+    star_count = serializers.SerializerMethodField()
+    is_starred = serializers.SerializerMethodField()
 
     class Meta:
         model = Experience
-        fields = [
-            "id", "title", "description", "category",
-            "thumbnail", "started_at", "ended_at", "is_ongoing",
-        ]
-        read_only_fields = ["id", "started_at"]
+        fields = ["id", "company", "role", "description", "star_count", "is_starred"]
 
-    def validate_title(self, value):
-        value = strip_tags(value).strip()
-        if not value:
-            raise serializers.ValidationError("Title cannot be empty or only HTML tags")
-        return value
+    def get_star_count(self, obj):
+        return obj.starred_by.count()
+
+    def get_is_starred(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.starred_by.filter(id=request.user.id).exists()
+        return False
 
     def validate_description(self, value):
-        value = strip_tags(value).strip()
-        if not value:
-            raise serializers.ValidationError("Description cannot be empty or only HTML tags")
-        return value
+        return strip_tags(value)
 
 
 class EducationSerializer(serializers.ModelSerializer):
