@@ -191,3 +191,54 @@ Terakhir, proses _serialization_ sangat dibutuhkan karena objek model/QuerySet p
 > > _"Saat saya menekan tombol submit pada form di dalam modal, browser saya malah berpindah memuat halaman raw JSON yang menampilkan respons dari server (`{"message": "Berhasil...", "pk": "..."}`). Padahal, logika `fetch()` dan modal popover sudah saya siapkan. Mengapa JavaScript gagal mencegat event submit ini, dan di mana letak kesalahan urutan eksekusinya?"_
 >
 > </details>
+
+---
+
+### TUGAS 6
+
+**1.** **REST (Representational State Transfer)** adalah salah 1 bentuk API yang memiliki batasan-batasan jelas, seperti _resource_ yg memiliki URL sendiri (misal `/api/v1/education/<id>/`), operasinya didefinisikan lewat _method_ HTTP (GET untuk membaca, POST membuat, PUT/PATCH mengubah, DELETE menghapus), bersifat _stateless_, dan menggunakan status HTTP yang bermakna.
+
+=> Mengembalikan format data JSON saja tidak cukup untuk menyebut sebuah API RESTful. Sebuah _endpoint_ seperti `/delete-education/<id>/` yang membalas status 200 berisi JSON tetap melanggar prinsip REST karena aksinya (delete) diletakkan pada URL, bukan pada _method_ HTTP. Terkait _update_, **PUT** mengganti keseluruhan _resource_ sehingga semua _field_ wajib dikirim, sedangkan **PATCH** hanya untuk pembaruan parsial (misalnya digunkaan ketika Editor yang hanya mengubah _description_ tanpa menyentuh _school_name_).
+
+**2.** **Serializer** dalam Django REST Framework (DRF) berfungsi sebagai penerjemah yang mengubah objek model ke JSON (serialisasi) dan memproses input JSON menjadi data yang tervalidasi (deserialisasi), sekaligus menjalankan aturan validasi khusus seperti `validate_<field>`.
+
+=> Dibandingkan merakit _dictionary_ secara manual menggunakan `JsonResponse`, _serializer_ sangat menguntungkan karena semua aturan _field_, validasi, dan _field_ perhitungan (`star_count`, `is_starred`) terpusat di satu tempat. Ini memungkinkan _serializer_ dipakai berulang untuk berbagai aksi seperti list, detail, create, update, melindungi _field read-only_ dari input klien, serta otomatis memformat error validasi menjadi respons HTTP 400 tanpa mengulang-ulang kode (DRY principle).
+
+**3.** **Autentikasi dan Otorisasi** adalah teknik verifikasi yg berbeda. Autentikasi mendeteksi "Siapa kamu?" (ditangani `SessionAuthentication` yang mengenali _user_ dari _cookie session_), sedangkan Otorisasi mengecek "Apa yang boleh kamu lakukan?" (ditangani _permission class_ seperti `IsPortfolioOwnerOrEditorOrReadOnly`).
+
+=> Pengecekan hak akses ini mutlak harus dilakukan di sisi _backend_ (server). Menyembunyikan tombol Edit/Delete di _template_ (frontend) hanya memanipulasi tampilan; tanpa validasi di server, siapa pun bisa mengirim _request_ langsung melalui `curl`, Postman, atau _console_ browser ke _endpoint_ yang sama. Hanya pemeriksaan di server yang benar-benar bisa menolak _request_ tak berizin.
+
+**4.** **SessionAuthentication** membuat browser otomatis menyertakan _cookie session_ pada setiap _request_ ke domain kita. Tanpa pengamanan ekstra, situs jahat bisa memicu browser korban untuk mengirim POST/PATCH/DELETE (serangan CSRF). Oleh karena itu, DRF mewajibkan token CSRF (header `X-CSRFToken`) untuk setiap _method_ yang memutasi data.
+
+=> Saat melakukan _testing_, fungsi `force_authenticate` akan melewati proses autentikasi _session_ sepenuhnya, sehingga pemeriksaan token CSRF tidak pernah dijalankan (tes terlihat sukses pdahal di _production_ gagal). Maka, tes harus menggunakan `APIClient(enforce_csrf_checks=True)` dan fungsi `.login()` untuk menggunakan alur _session_ sungguhan, untuk membuktikan bahwa _request_ tanpa token akan ditolak (403).
+
+---
+
+> **P.S.** Tugas 6 ini saya kerjakan dengan bantuan Gemini AI, sebagai rekan diskusi saya, asisten _debugging_ serta sebagai _buddy scripting_.
+>
+> #### 1. **Strategi Prompting & Tools**
+>
+> - **Tools:** Gemini (berperan sebagai _buddy scripting_ dan asisten _debugging_).
+> - **Strategi Prompting:** Saya memberik konteks dari berdasarkan tutorial 7, dan meminta ai untuk menuntun implementasi yang sama ke modul aku lainnya agar sintaks AI tetap selaras dengan struktur proyek saya. Saya juga menggunakan _Deep Dive Prompting_ yang berfokus pada diskusi fundamental (seperti siklus hidup _request-response_ di DRF) alih-alih sekadar meminta _generate_ kode.
+>
+> #### 2. **Bagian Spesifik yang Dibantu AI & Pengerjaan Manual**
+>
+> - **Bagian yang Dibantu AI (Kerangka & Konseptual):** Melakukan _brainstorming_ terkait _best practice_ pemisahan _business logic_ ke dalam `ModelSerializer` (termasuk penanganan _computed fields_), merumuskan rancangan hierarki _permission class_, serta mendiskusikan kerangka asinkron `fetch` API untuk fungsionalitas _modal_ PATCH dan _toast_. AI juga membantu membuat draf struktur skenario _edge-case_ untuk `APITestCase`.
+> - **Integrasi & Pemecahan Masalah Manual:** Saya secara mandiri mengorkestrasi penggabungan _permission class_ agar sesuai dengan _role-based access_ spesifik di proyek saya. Selain itu, saya harus memetakan ulang _payload_ dari _form_ HTML agar sinkron dengan _fields_ yang diekspektasikan oleh _serializer_, serta memburu dan menyelesaikan _bug_ otentikasi saat melakukan _testing_ integrasi secara manual.
+> - **Tinjauan Kritis terhadap Keterbatasan AI:** AI sering kali mengalami "halusinasi struktural" terkait manipulasi DOM karena tidak memiliki visibilitas spasial terhadap hierarki elemen di `education.html`. Resolusi yang diberikan oleh AI untuk JavaScript kerap keliru dalam menargetkan ID/Class. Oleh karena itu, saya harus menganalisis ulang alur DOM dan menulis ulang logika _query selector_ secara manual agar eksekusi AJAX berjalan presisi.
+>
+> #### 3. **Cuplikan Chat Log AI**
+>
+> <details>
+> <summary> Klik untuk melihat tinjauan analitis bersama AI</summary>
+>
+> **Prompt 1 (Analisis Komparatif Arsitektur DRF):**
+>
+> > _"Berdasarkan kode Tutorial 07, apa kelebihan arsitektural yang didapat dengan memindahkan proses perakitan JSON dari metode manual `JsonResponse` menjadi terpusat pada `ModelSerializer` di DRF? Tolong bedah signifikansinya dalam konteks enkapsulasi validasi, penanganan computed fields, dan penerapan DRY principle."_
+>
+> **Prompt 2 (Debugging Celah Keamanan Sesi & Testing):**
+>
+> > _"Saat saya menjalankan `APITestCase` untuk menguji endpoint PATCH, penggunaan `force_authenticate` membuat tes saya lolos (passed) meskipun payload tidak menyertakan token CSRF. Namun, ketika saya mereplikasinya langsung via browser, request tersebut justru diblokir (403 Forbidden). Apa yang terlewat dari siklus SessionAuthentication saat testing, dan bagaimana cara memodifikasi konfigurasi `APIClient` agar mensimulasikan injeksi CSRF secara otentik layaknya di production?"_
+>
+>
+> </details>

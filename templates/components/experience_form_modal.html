@@ -1,0 +1,32 @@
+<div id="add-exp-modal" class="skill-form-modal" popover="auto" role="dialog" aria-modal="true" aria-labelledby="add-exp-modal-title">
+  <button type="button" class="skill-form-modal__backdrop" popovertarget="add-exp-modal" popovertargetaction="hide" aria-label="Cancel"></button>
+
+  <div class="skill-form-modal__content">
+    <button type="button" class="skill-form-modal__close" popovertarget="add-exp-modal" popovertargetaction="hide" aria-label="Close form">×</button>
+
+    <h2 id="add-exp-modal-title">Add New Experience</h2>
+    <form id="exp-add-form" class="skill-form">
+      <div class="form-group">
+        <label for="add-category">Category</label>
+        <input type="text" id="add-category" name="category" required>
+      </div>
+      <div class="form-group">
+        <label for="add-title">Title</label>
+        <input type="text" id="add-title" name="title" required>
+      </div>
+      <div class="form-group">
+        <label for="add-description">Description</label>
+        <textarea id="add-description" name="description" required rows="4"></textarea>
+      </div>
+      <div class="form-group" style="flex-direction: row; align-items: center; gap: 0.5rem;">
+        <input type="checkbox" id="add-ongoing" name="is_ongoing">
+        <label for="add-ongoing" style="margin: 0; font-weight: normal;">Ongoing?</label>
+      </div>
+      
+      <div class="skill-form-modal__actions">
+        <button type="button" class="button button-secondary" popovertarget="add-exp-modal" popovertargetaction="hide">Cancel</button>
+        <button type="submit" class="button">Add experience</button>
+      </div>
+    </form>
+  </div>
+</div>
