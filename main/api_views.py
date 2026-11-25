@@ -204,3 +204,11 @@ def experience_star(request, experience_id):
         
     serializer = ExperienceSerializer(experience, context={"request": request})
     return Response(serializer.data)
+
+#DRF THINGY
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def api_logout(request):
+    if request.auth is not None:
+        request.auth.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
