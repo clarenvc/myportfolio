@@ -82,7 +82,7 @@ def skill_star(request, skill_id):
 #EDUCATION API VIEWS
 
 @api_view(["GET", "HEAD", "POST"])
-@authentication_classes([SessionAuthentication])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsPortfolioOwnerOrEditorOrReadOnly])
 def education_list(request):
     if request.method in ("GET", "HEAD"):
@@ -204,3 +204,11 @@ def experience_star(request, experience_id):
         
     serializer = ExperienceSerializer(experience, context={"request": request})
     return Response(serializer.data)
+
+#DRF THINGY
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def api_logout(request):
+    if request.auth is not None:
+        request.auth.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
